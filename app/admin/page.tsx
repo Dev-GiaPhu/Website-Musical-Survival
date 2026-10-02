@@ -39,6 +39,10 @@ export default async function AdminPage({
           <span>Giao dịch</span>
           <strong>Theo dõi giao dịch nạp →</strong>
         </Link>
+        <Link className="admin-shortcut" href="/admin/game">
+          <span>Nội dung game</span>
+          <strong>Quản lý gói nạp, vật phẩm và thành tựu →</strong>
+        </Link>
       </section>
 
       <section className="content-grid shell">
