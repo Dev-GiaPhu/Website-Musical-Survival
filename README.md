@@ -125,11 +125,17 @@ Current endpoints:
 
 - `GET /api/health`
 - `GET /api/game/v1/me`
+- `GET /api/game/v1/state`
+- `PUT /api/game/v1/state`
 - `POST /api/game/v1/heartbeat`
 - `POST /api/game/v1/store/purchase`
 - `GET /api/game/v1/news`
+- `POST /api/game/v1/internal/progress`
+- `POST /api/game/v1/internal/achievements/unlock`
 
-Do not embed `SUPABASE_SERVICE_ROLE_KEY` or payment secrets in the game client.
+Do not embed `SUPABASE_SERVICE_ROLE_KEY`, `GAME_SERVER_API_KEY` or payment secrets in the game client.
+
+Player clients may save only their own opaque save-state with a revision number. Trusted progression and achievement endpoints require `GAME_SERVER_API_KEY` and are intended for a backend game server, never a shipped client. Wallets, store prices and payment results are not writable through the player save-state endpoint.
 
 ## Zero-cost deployment target
 
