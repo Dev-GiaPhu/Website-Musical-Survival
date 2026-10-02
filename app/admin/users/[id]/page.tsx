@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { requireAdmin } from "@/lib/auth";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
-import { adjustWallet, setPlayerStatus } from "./actions";
+import { adjustWallet, grantReward, setPlayerStatus } from "./actions";
 
 const messages: Record<string, { kind: "success" | "error"; text: string }> = {
   "status-updated": { kind: "success", text: "Trạng thái người chơi đã được cập nhật." },
@@ -12,7 +12,10 @@ const messages: Record<string, { kind: "success" | "error"; text: string }> = {
   "invalid-wallet": { kind: "error", text: "Giá trị điều chỉnh số dư không hợp lệ." },
   "wallet-negative": { kind: "error", text: "Điều chỉnh này sẽ làm số dư nhỏ hơn 0." },
   "wallet-forbidden": { kind: "error", text: "Chỉ Super Admin mới có thể điều chỉnh số dư." },
-  "wallet-error": { kind: "error", text: "Không thể điều chỉnh số dư." }
+  "wallet-error": { kind: "error", text: "Không thể điều chỉnh số dư." },
+  "reward-granted": { kind: "success", text: "Phần thưởng đã được cộng vào tài khoản và ghi vào lịch sử." },
+  "invalid-reward": { kind: "error", text: "Thông tin phần thưởng không hợp lệ." },
+  "reward-error": { kind: "error", text: "Không thể trao phần thưởng." }
 };
 
 function formatDate(value?: string | null) {
@@ -154,6 +157,25 @@ export default async function AdminUserDetailPage({
                 <textarea id="statusReason" name="reason" minLength={3} maxLength={500} required />
               </div>
               <button className="button button-primary" type="submit">Cập nhật trạng thái</button>
+            </form>
+          </div>
+
+          <div className="panel">
+            <h2>Tặng thưởng</h2>
+            <p className="panel-note">
+              Phần thưởng được cộng qua hệ thống ví và luôn có bản ghi lịch sử.
+            </p>
+            <form action={grantReward} className="form-grid">
+              <input type="hidden" name="userId" value={profile.id} />
+              <div className="field">
+                <label htmlFor="rewardAmount">Số lượng tặng</label>
+                <input id="rewardAmount" name="amount" type="number" min="1" step="1" required />
+              </div>
+              <div className="field">
+                <label htmlFor="rewardReason">Lý do / tên phần thưởng</label>
+                <textarea id="rewardReason" name="reason" minLength={3} maxLength={500} required />
+              </div>
+              <button className="button button-primary" type="submit">Trao phần thưởng</button>
             </form>
           </div>
 
