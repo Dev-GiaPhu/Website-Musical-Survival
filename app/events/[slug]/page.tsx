@@ -51,10 +51,10 @@ export default async function EventDetailPage({
         .maybeSingle()
     : { data: null };
 
-  const now = Date.now();
-  const starts = new Date(event.starts_at).getTime();
-  const ends = new Date(event.ends_at).getTime();
-  const isOpen = now >= starts && now < ends;
+  const { data: phase } = await supabase.rpc("get_game_event_phase", {
+    target_event_id: event.id
+  });
+  const isOpen = phase === "open";
   const message = query.status ? messages[query.status] : undefined;
 
   return (
@@ -117,7 +117,7 @@ export default async function EventDetailPage({
         </section>
       ) : (
         <div className="notice notice-warning">
-          {now < starts ? "Sự kiện chưa bắt đầu." : "Sự kiện đã kết thúc."}
+          {phase === "not_started" ? "Sự kiện chưa bắt đầu." : "Sự kiện đã kết thúc."}
         </div>
       )}
 
