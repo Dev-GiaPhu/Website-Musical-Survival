@@ -66,3 +66,23 @@ export async function requestPhoneLink(formData: FormData) {
   if (error) accountRedirect("phone-unavailable");
   accountRedirect("phone-sent");
 }
+
+export async function verifyPhoneLink(formData: FormData) {
+  const phone = String(formData.get("phone") || "").trim();
+  const token = String(formData.get("token") || "").trim();
+
+  if (!/^\+[1-9]\d{7,14}$/.test(phone)) accountRedirect("invalid-phone");
+  if (!/^\d{6}$/.test(token)) accountRedirect("invalid-phone-code");
+
+  const supabase = await createSupabaseServerClient();
+  const { error } = await supabase.auth.verifyOtp({
+    phone,
+    token,
+    type: "phone_change"
+  });
+
+  if (error) accountRedirect("phone-code-error");
+
+  revalidatePath("/account");
+  accountRedirect("phone-verified");
+}
