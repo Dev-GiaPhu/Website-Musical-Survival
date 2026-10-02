@@ -28,6 +28,7 @@ jobs:
       MOMO_IPN_URL: ${{ secrets.MOMO_IPN_URL }}
       MOMO_REDIRECT_URL: ${{ secrets.MOMO_REDIRECT_URL }}
       GAME_SERVER_API_KEY: ${{ secrets.GAME_SERVER_API_KEY }}
+      BOOTSTRAP_ADMIN_EMAIL: ${{ secrets.BOOTSTRAP_ADMIN_EMAIL }}
 
     steps:
       - name: Checkout
@@ -73,7 +74,8 @@ jobs:
             "MOMO_ENDPOINT",
             "MOMO_IPN_URL",
             "MOMO_REDIRECT_URL",
-            "GAME_SERVER_API_KEY"
+            "GAME_SERVER_API_KEY",
+            "BOOTSTRAP_ADMIN_EMAIL"
           ];
           const values = {};
           for (const key of keys) {
