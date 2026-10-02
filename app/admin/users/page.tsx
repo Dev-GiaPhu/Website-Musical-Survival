@@ -2,6 +2,11 @@ import Link from "next/link";
 import { requireAdmin } from "@/lib/auth";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
+function isOnline(value?: string | null) {
+  if (!value) return false;
+  return Date.now() - new Date(value).getTime() <= 2 * 60 * 1000;
+}
+
 function formatDate(value?: string | null) {
   if (!value) return "—";
   return new Intl.DateTimeFormat("vi-VN", {
@@ -38,7 +43,15 @@ export default async function AdminUsersPage() {
             {users?.length ? users.map((user) => (
               <div className="data-row" key={user.id}>
                 <span><strong>{user.display_name || user.username || "Chưa đặt tên"}</strong><small>{user.username || user.id}</small></span>
-                <span><span className="badge">{user.status}</span></span>
+                <span>
+                  {user.status === "active" ? (
+                    <span className={`badge ${isOnline(user.last_seen_at) ? "badge-online" : ""}`}>
+                      {isOnline(user.last_seen_at) ? "Online" : "Offline"}
+                    </span>
+                  ) : (
+                    <span className="badge">{user.status}</span>
+                  )}
+                </span>
                 <span>{formatDate(user.created_at)}</span>
                 <span>{formatDate(user.last_seen_at)}</span>
               </div>
