@@ -1,3 +1,4 @@
+import { redirect } from "next/navigation";
 import Link from "next/link";
 import { requireUser } from "@/lib/auth";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
@@ -77,6 +78,10 @@ export default async function AccountPage({
       .single(),
     searchParams
   ]);
+
+  if (!profile?.username) {
+    redirect("/account/onboarding");
+  }
 
   const message = params.status ? statusMessages[params.status] : undefined;
   const googleIdentities = (user.identities ?? []).filter(
