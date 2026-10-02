@@ -34,6 +34,9 @@ Create a Supabase project and run:
 
 ```text
 supabase/migrations/202610020001_initial.sql
+supabase/migrations/202610020002_admin_operations.sql
+supabase/migrations/202610020003_game_state_api.sql
+supabase/migrations/202610030004_accounts_rewards_events.sql
 ```
 
 You can apply it with the Supabase CLI or SQL editor.
@@ -124,6 +127,9 @@ Authorization: Bearer <SUPABASE_ACCESS_TOKEN>
 Current endpoints:
 
 - `GET /api/health`
+- `POST /api/game/v1/auth/register`
+- `POST /api/game/v1/auth/login`
+- `POST /api/game/v1/auth/refresh`
 - `GET /api/game/v1/me`
 - `GET /api/game/v1/state`
 - `PUT /api/game/v1/state`
@@ -190,3 +196,26 @@ npm run build
 ## Repository visibility
 
 This code contains no committed secrets and can safely be developed in a public repository when environment variables are kept outside Git. For an unreleased commercial project, changing the repository to Private is still recommended when your GitHub plan supports it.
+
+
+## Authentication email templates
+
+Branded Musical Survival templates are stored in:
+
+```text
+supabase/email-templates/confirm-signup.html
+supabase/email-templates/change-email.html
+supabase/email-templates/reset-password.html
+```
+
+They use the SSR endpoint `/auth/confirm` and Supabase `TokenHash` verification.
+
+New Supabase Free projects created after June 3, 2026 require a custom SMTP provider before customized authentication email templates can be used. Configure SMTP credentials in Supabase Auth; never commit them to Git.
+
+## Unified game account
+
+The website and game use the same Supabase Auth users and the same `profiles`, wallet and game-state records. Email/password registration requires email verification when Confirm email is enabled in Supabase. Google users are sent through player onboarding when no username exists.
+
+## Events and rewards
+
+Run `202610030004_accounts_rewards_events.sql` before enabling the events UI. Admins can create official events, review one submission per player, grant audited rewards and grant direct account rewards. Reward credits always pass through wallet transactions, ledger records and audit logs.
