@@ -262,6 +262,40 @@ on public.game_event_entries for update
 using (public.is_admin())
 with check (public.is_admin());
 
+create or replace function public.get_game_event_phase(
+  target_event_id uuid
+)
+returns text
+language plpgsql
+stable
+security definer
+set search_path = public
+as $
+declare
+  target_event public.game_events%rowtype;
+begin
+  select * into target_event
+  from public.game_events
+  where id = target_event_id and status = 'published';
+
+  if not found then
+    return 'unavailable';
+  end if;
+
+  if now() < target_event.starts_at then
+    return 'not_started';
+  end if;
+
+  if now() >= target_event.ends_at then
+    return 'ended';
+  end if;
+
+  return 'open';
+end;
+$;
+
+grant execute on function public.get_game_event_phase(uuid) to anon, authenticated;
+
 create or replace function public.submit_game_event_entry(
   target_event_id uuid,
   submission_text text
