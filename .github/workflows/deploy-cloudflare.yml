@@ -27,6 +27,7 @@ jobs:
       MOMO_ENDPOINT: ${{ secrets.MOMO_ENDPOINT }}
       MOMO_IPN_URL: ${{ secrets.MOMO_IPN_URL }}
       MOMO_REDIRECT_URL: ${{ secrets.MOMO_REDIRECT_URL }}
+      GAME_SERVER_API_KEY: ${{ secrets.GAME_SERVER_API_KEY }}
 
     steps:
       - name: Checkout
@@ -71,7 +72,8 @@ jobs:
             "MOMO_SECRET_KEY",
             "MOMO_ENDPOINT",
             "MOMO_IPN_URL",
-            "MOMO_REDIRECT_URL"
+            "MOMO_REDIRECT_URL",
+            "GAME_SERVER_API_KEY"
           ];
           const values = {};
           for (const key of keys) {
