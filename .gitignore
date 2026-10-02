@@ -1,9 +1,17 @@
 .next
 node_modules
-.env
-.env.local
-.env.*.local
 .vercel
 coverage
 *.log
 .DS_Store
+
+# Environment and local secrets
+.env*
+!.env.example
+.dev.vars*
+.deploy-secrets.json
+
+# Cloudflare/OpenNext generated files
+.open-next
+.wrangler
+cloudflare-env.d.ts
