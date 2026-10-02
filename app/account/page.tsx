@@ -4,7 +4,8 @@ import {
   updateDisplayName,
   changeUsername,
   requestEmailChange,
-  requestPhoneLink
+  requestPhoneLink,
+  verifyPhoneLink
 } from "./actions";
 
 const statusMessages: Record<string, { kind: "success" | "error"; text: string }> = {
@@ -12,6 +13,7 @@ const statusMessages: Record<string, { kind: "success" | "error"; text: string }
   "username-updated": { kind: "success", text: "Tên người chơi đã được cập nhật." },
   "email-sent": { kind: "success", text: "Hãy kiểm tra hộp thư để hoàn tất thay đổi email." },
   "phone-sent": { kind: "success", text: "Mã xác minh đã được gửi đến số điện thoại." },
+  "phone-verified": { kind: "success", text: "Số điện thoại đã được liên kết." },
   "invalid-profile": { kind: "error", text: "Tên hiển thị không hợp lệ." },
   "invalid-username": { kind: "error", text: "Tên người chơi cần 3–20 ký tự, chỉ gồm chữ, số và dấu gạch dưới." },
   "username-taken": { kind: "error", text: "Tên người chơi này đã được sử dụng." },
@@ -21,6 +23,8 @@ const statusMessages: Record<string, { kind: "success" | "error"; text: string }
   "invalid-email": { kind: "error", text: "Email không hợp lệ." },
   "email-error": { kind: "error", text: "Không thể bắt đầu thay đổi email." },
   "invalid-phone": { kind: "error", text: "Số điện thoại cần có mã quốc gia, ví dụ +84." },
+  "invalid-phone-code": { kind: "error", text: "Mã xác minh không hợp lệ." },
+  "phone-code-error": { kind: "error", text: "Không thể xác minh số điện thoại. Hãy kiểm tra lại mã." },
   "phone-unavailable": { kind: "error", text: "Xác minh số điện thoại hiện chưa sẵn sàng." }
 };
 
@@ -161,6 +165,20 @@ export default async function AccountPage({
                 <input id="phone" name="phone" type="tel" placeholder="+84..." required />
               </div>
               <button className="button button-primary" type="submit">Gửi mã xác minh</button>
+            </form>
+
+            <div style={{ height: 1, background: "var(--line)", margin: "24px 0" }} />
+
+            <form action={verifyPhoneLink} className="form-grid">
+              <div className="field">
+                <label htmlFor="verifyPhone">Số điện thoại vừa nhận mã</label>
+                <input id="verifyPhone" name="phone" type="tel" placeholder="+84..." required />
+              </div>
+              <div className="field">
+                <label htmlFor="token">Mã 6 số</label>
+                <input id="token" name="token" inputMode="numeric" pattern="[0-9]{6}" maxLength={6} required />
+              </div>
+              <button className="button button-ghost" type="submit">Xác minh số điện thoại</button>
             </form>
           </div>
         </div>
