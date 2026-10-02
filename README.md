@@ -133,16 +133,38 @@ Do not embed `SUPABASE_SERVICE_ROLE_KEY` or payment secrets in the game client.
 
 ## Zero-cost deployment target
 
-The repository includes a Cloudflare Workers configuration using the official OpenNext adapter. A Cloudflare account is still required before a real deployment can be created.
+The repository includes a Cloudflare Workers configuration using OpenNext. The Worker name is `musical-survival-official`.
 
-After the Supabase environment variables are configured as Cloudflare secrets/build variables:
+A manual production workflow is available at **GitHub Actions → Deploy Cloudflare → Run workflow**. It deliberately refuses to deploy until these GitHub Actions secrets exist:
+
+```text
+CLOUDFLARE_API_TOKEN
+CLOUDFLARE_ACCOUNT_ID
+NEXT_PUBLIC_SUPABASE_URL
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
+```
+
+For payment support, also add these only after real provider credentials exist:
+
+```text
+SUPABASE_SERVICE_ROLE_KEY
+MOMO_PARTNER_CODE
+MOMO_ACCESS_KEY
+MOMO_SECRET_KEY
+MOMO_ENDPOINT
+MOMO_IPN_URL
+MOMO_REDIRECT_URL
+```
+
+For phone verification, set `NEXT_PUBLIC_PHONE_VERIFICATION_ENABLED=true` only after a real SMS provider has been configured and tested in Supabase.
+
+The deployment workflow builds and validates the app, creates a temporary secrets file only on the GitHub runner, uploads those values as encrypted Worker secrets, deploys the Worker, and deletes the temporary file. Secrets are never committed to the repository.
+
+For local Cloudflare preview:
 
 ```bash
 npm run preview
-npm run deploy
 ```
-
-The Worker name is `musical-survival-official`. Never store the Supabase service-role key or MoMo secret in `wrangler.jsonc` or Git.
 
 ## Local development
 
