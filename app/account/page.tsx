@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { requireUser } from "@/lib/auth";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import {
@@ -10,9 +11,20 @@ import {
 } from "./actions";
 
 const statusMessages: Record<string, { kind: "success" | "error"; text: string }> = {
+  "welcome": { kind: "success", text: "Tài khoản Musical Survival đã sẵn sàng." },
   "profile-updated": { kind: "success", text: "Tên hiển thị đã được cập nhật." },
   "username-updated": { kind: "success", text: "Tên người chơi đã được cập nhật." },
-  "email-sent": { kind: "success", text: "Hãy kiểm tra hộp thư để hoàn tất thay đổi email." },
+  "email-sent": {
+    kind: "success",
+    text: "Yêu cầu đổi email đã được gửi. Vì lý do bảo mật, hãy hoàn tất các bước xác nhận được gửi đến email hiện tại và email mới."
+  },
+  "email-confirmed-one": {
+    kind: "success",
+    text: "Một bước xác nhận đã hoàn tất. Nếu email mới vẫn đang chờ, hãy mở email xác nhận còn lại."
+  },
+  "email-changed": { kind: "success", text: "Email đăng nhập đã được thay đổi thành công." },
+  "email-same": { kind: "error", text: "Email mới đang giống email hiện tại." },
+  "password-updated": { kind: "success", text: "Mật khẩu mới đã được lưu." },
   "phone-sent": { kind: "success", text: "Mã xác minh đã được gửi đến số điện thoại." },
   "phone-verified": { kind: "success", text: "Số điện thoại đã được liên kết." },
   "google-linked": { kind: "success", text: "Tài khoản Google mới đã được liên kết." },
@@ -72,13 +84,18 @@ export default async function AccountPage({
   );
   const phoneVerificationEnabled =
     process.env.NEXT_PUBLIC_PHONE_VERIFICATION_ENABLED === "true";
+  const pendingEmail = (user as typeof user & { new_email?: string }).new_email;
+  const emailVerified = Boolean(user.email_confirmed_at);
 
   return (
     <>
       <section className="page-head shell">
         <span className="kicker">TÀI KHOẢN MUSICAL SURVIVAL</span>
         <h1>{profile?.display_name || profile?.username || "Người chơi"}</h1>
-        <p>Quản lý thông tin được liên kết với tài khoản Musical Survival của bạn.</p>
+        <p>
+          Đây là tài khoản dùng chung trên website và trong Musical Survival.
+          Hồ sơ, danh tính đăng nhập và dữ liệu được liên kết với cùng một Player ID.
+        </p>
       </section>
 
       <section className="content-grid shell">
@@ -87,10 +104,23 @@ export default async function AccountPage({
             <div className={`notice notice-${message.kind}`}>{message.text}</div>
           ) : null}
 
+          {pendingEmail ? (
+            <div className="notice notice-warning">
+              <strong>Đang chờ đổi email sang {pendingEmail}</strong>
+              <span>
+                Hãy hoàn tất các email xác nhận được gửi bởi Musical Survival. Email hiện tại
+                sẽ chỉ thay đổi sau khi quy trình bảo mật hoàn tất.
+              </span>
+            </div>
+          ) : null}
+
           <div className="panel">
-            <h2>Hồ sơ người chơi</h2>
+            <div className="panel-title-row">
+              <h2>Hồ sơ người chơi</h2>
+              <span className="badge badge-online">Đang trực tuyến</span>
+            </div>
             <div className="profile-row">
-              <span>ID người chơi</span>
+              <span>Player ID</span>
               <strong>{user.id}</strong>
             </div>
             <div className="profile-row">
@@ -98,8 +128,15 @@ export default async function AccountPage({
               <strong>{profile?.username || "Chưa đặt"}</strong>
             </div>
             <div className="profile-row">
-              <span>Email</span>
-              <strong>{user.email || "Chưa liên kết"}</strong>
+              <span>Email đăng nhập</span>
+              <strong>
+                {user.email || "Chưa liên kết"}
+                {user.email ? (
+                  <small className={emailVerified ? "verified-text" : "pending-text"}>
+                    {emailVerified ? "Đã xác minh" : "Chưa xác minh"}
+                  </small>
+                ) : null}
+              </strong>
             </div>
             <div className="profile-row">
               <span>Số điện thoại</span>
@@ -112,10 +149,6 @@ export default async function AccountPage({
             <div className="profile-row">
               <span>Cập nhật gần nhất</span>
               <strong>{formatDate(profile?.updated_at)}</strong>
-            </div>
-            <div className="profile-row">
-              <span>Trạng thái</span>
-              <strong><span className="badge badge-online">Đang trực tuyến</span></strong>
             </div>
           </div>
 
@@ -148,6 +181,7 @@ export default async function AccountPage({
                   defaultValue={profile?.username || ""}
                   minLength={3}
                   maxLength={20}
+                  pattern="[A-Za-z0-9_]+"
                   autoComplete="off"
                   required
                 />
@@ -158,7 +192,10 @@ export default async function AccountPage({
           </div>
 
           <div className="panel">
-            <h2>Tài khoản Google liên kết</h2>
+            <h2>Phương thức đăng nhập Google</h2>
+            <p className="panel-note">
+              Liên kết Google vào cùng Player ID để có thêm một cách đăng nhập mà không tạo tài khoản game mới.
+            </p>
             <div className="stack">
               {googleIdentities.length > 0 ? googleIdentities.map((identity) => {
                 const identityEmail =
@@ -167,9 +204,9 @@ export default async function AccountPage({
                 return (
                   <div className="profile-row" key={identity.id}>
                     <span>Google</span>
-                    <div style={{ display: "grid", gap: 8, justifyItems: "end" }}>
+                    <div className="identity-actions">
                       <strong>{identityEmail}</strong>
-                      {googleIdentities.length > 1 ? (
+                      {googleIdentities.length > 1 || (user.identities?.length ?? 0) > 1 ? (
                         <form action={unlinkGoogleIdentity}>
                           <input type="hidden" name="identityId" value={identity.id} />
                           <button className="text-button" type="submit">Gỡ liên kết</button>
@@ -186,13 +223,17 @@ export default async function AccountPage({
           </div>
 
           <div className="panel">
-            <h2>Thay đổi email liên hệ</h2>
+            <h2>Thay đổi email đăng nhập</h2>
+            <p className="panel-note">
+              Email mới phải được xác minh. Với chế độ bảo mật hiện tại, hệ thống có thể yêu cầu
+              xác nhận ở cả email hiện tại và email mới trước khi hoàn tất thay đổi.
+            </p>
             <form action={requestEmailChange} className="form-grid">
               <div className="field">
                 <label htmlFor="email">Email mới</label>
-                <input id="email" name="email" type="email" required />
+                <input id="email" name="email" type="email" autoComplete="email" required />
               </div>
-              <button className="button button-primary" type="submit">Gửi xác nhận</button>
+              <button className="button button-primary" type="submit">Gửi email xác nhận</button>
             </form>
           </div>
 
@@ -208,7 +249,7 @@ export default async function AccountPage({
                   <button className="button button-primary" type="submit">Gửi mã xác minh</button>
                 </form>
 
-                <div style={{ height: 1, background: "var(--line)", margin: "24px 0" }} />
+                <div className="panel-divider" />
 
                 <form action={verifyPhoneLink} className="form-grid">
                   <div className="field">
@@ -224,7 +265,7 @@ export default async function AccountPage({
               </>
             ) : (
               <p className="panel-note">
-                Liên kết số điện thoại chưa được mở. Thông tin sẽ được cập nhật khi tính năng sẵn sàng.
+                Liên kết số điện thoại sẽ được mở sau khi dịch vụ gửi OTP chính thức sẵn sàng.
               </p>
             )}
           </div>
@@ -234,15 +275,28 @@ export default async function AccountPage({
           <div className="panel">
             <span className="kicker">SỐ DƯ</span>
             <p className="stat-number">{(wallet?.coin_balance ?? 0).toLocaleString("vi-VN")}</p>
-            <p className="panel-note">Số dư hiện có trên tài khoản.</p>
+            <p className="panel-note">Số dư được dùng chung với Musical Survival.</p>
             <a className="button button-primary full" href="/top-up">Nạp tiền</a>
           </div>
+
+          {profile?.role === "admin" || profile?.role === "super_admin" ? (
+            <div className="panel admin-access-card">
+              <span className="kicker">QUẢN TRỊ</span>
+              <h2>Publisher Console</h2>
+              <p className="panel-note">Quản lý người chơi, nội dung, thông báo và sự kiện.</p>
+              <Link className="button button-ghost full" href="/admin">Mở trang quản trị</Link>
+            </div>
+          ) : null}
+
           <div className="panel">
             <h2>Bảo mật tài khoản</h2>
             <p className="panel-note">
-              Bạn có thể kết thúc phiên hiện tại hoặc đăng xuất tài khoản khỏi tất cả thiết bị.
+              Có thể kết thúc phiên hiện tại, đăng xuất khỏi mọi thiết bị hoặc yêu cầu đổi mật khẩu.
             </p>
             <div className="stack" style={{ marginTop: 16 }}>
+              <Link className="button button-ghost full" href="/auth?mode=forgot">
+                Đổi / khôi phục mật khẩu
+              </Link>
               <form action="/auth/signout" method="post">
                 <button className="button button-ghost full" type="submit">
                   Đăng xuất thiết bị này
