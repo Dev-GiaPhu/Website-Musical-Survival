@@ -91,6 +91,13 @@ export default async function AccountPage({
     process.env.NEXT_PUBLIC_PHONE_VERIFICATION_ENABLED === "true";
   const pendingEmail = (user as typeof user & { new_email?: string }).new_email;
   const emailVerified = Boolean(user.email_confirmed_at);
+  const bootstrapEmail = process.env.BOOTSTRAP_ADMIN_EMAIL?.trim().toLowerCase();
+  const canBootstrapAdmin =
+    Boolean(bootstrapEmail) &&
+    Boolean(user.email) &&
+    user.email?.toLowerCase() === bootstrapEmail &&
+    profile?.role !== "admin" &&
+    profile?.role !== "super_admin";
 
   return (
     <>
@@ -283,6 +290,19 @@ export default async function AccountPage({
             <p className="panel-note">Số dư được dùng chung với Musical Survival.</p>
             <a className="button button-primary full" href="/top-up">Nạp tiền</a>
           </div>
+
+          {canBootstrapAdmin ? (
+            <div className="panel admin-access-card">
+              <span className="kicker">PUBLISHER CONSOLE</span>
+              <h2>Kích hoạt quản trị</h2>
+              <p className="panel-note">
+                Email này được cấu hình là tài khoản chủ dự án.
+              </p>
+              <Link className="button button-primary full" href="/admin/bootstrap">
+                Kích hoạt Super Admin
+              </Link>
+            </div>
+          ) : null}
 
           {profile?.role === "admin" || profile?.role === "super_admin" ? (
             <div className="panel admin-access-card">
