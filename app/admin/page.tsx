@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { requireAdmin } from "@/lib/auth";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { publishNews } from "./actions";
@@ -25,14 +26,29 @@ export default async function AdminPage({
         <p>Khu vực dành cho đội ngũ phát hành Musical Survival.</p>
       </section>
 
+      <section className="admin-shortcuts shell">
+        <Link className="admin-shortcut" href="/admin/announcements">
+          <span>Thông báo</span>
+          <strong>Đăng thông báo cho người chơi →</strong>
+        </Link>
+        <Link className="admin-shortcut" href="/admin/users">
+          <span>Người chơi</span>
+          <strong>Xem danh sách tài khoản →</strong>
+        </Link>
+        <Link className="admin-shortcut" href="/admin/payments">
+          <span>Giao dịch</span>
+          <strong>Theo dõi giao dịch nạp →</strong>
+        </Link>
+      </section>
+
       <section className="content-grid shell">
         <div className="panel">
-          <h2>Đăng thông báo</h2>
+          <h2>Đăng tin mới</h2>
           {params.status === "published" ? (
-            <div className="notice notice-success">Thông báo đã được lưu.</div>
+            <div className="notice notice-success">Tin đã được lưu.</div>
           ) : null}
           {params.status === "error" || params.status === "invalid" ? (
-            <div className="notice notice-error">Không thể lưu thông báo.</div>
+            <div className="notice notice-error">Không thể lưu tin.</div>
           ) : null}
           <form action={publishNews} className="form-grid" style={{ marginTop: 18 }}>
             <div className="field">
@@ -47,11 +63,11 @@ export default async function AdminPage({
               <label htmlFor="content">Nội dung</label>
               <textarea id="content" name="content" minLength={3} maxLength={20000} required />
             </div>
-            <label style={{ display: "flex", gap: 10, alignItems: "center", color: "#c7c9d4", fontSize: 13 }}>
+            <label className="check-row">
               <input name="published" type="checkbox" />
               Công bố ngay
             </label>
-            <button className="button button-primary" type="submit">Lưu thông báo</button>
+            <button className="button button-primary" type="submit">Lưu tin</button>
           </form>
         </div>
 
