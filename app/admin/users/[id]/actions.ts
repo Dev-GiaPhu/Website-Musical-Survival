@@ -18,6 +18,12 @@ const walletSchema = z.object({
   reason: z.string().trim().min(3).max(500)
 });
 
+const rewardSchema = z.object({
+  userId: z.string().uuid(),
+  amount: z.coerce.number().int().positive().max(1000000000),
+  reason: z.string().trim().min(3).max(500)
+});
+
 function back(userId: string, status: string): never {
   redirect(`/admin/users/${encodeURIComponent(userId)}?status=${encodeURIComponent(status)}`);
 }
@@ -83,4 +89,33 @@ export async function adjustWallet(formData: FormData) {
 
   revalidatePath(`/admin/users/${parsed.data.userId}`);
   back(parsed.data.userId, "wallet-updated");
+}
+
+
+export async function grantReward(formData: FormData) {
+  await requireAdmin();
+
+  const parsed = rewardSchema.safeParse({
+    userId: formData.get("userId"),
+    amount: formData.get("amount"),
+    reason: formData.get("reason")
+  });
+
+  if (!parsed.success) {
+    const userId = String(formData.get("userId") || "");
+    back(userId, "invalid-reward");
+  }
+
+  const supabase = await createSupabaseServerClient();
+  const { error } = await supabase.rpc("admin_grant_reward", {
+    target_user_id: parsed.data.userId,
+    reward_amount: parsed.data.amount,
+    reason: parsed.data.reason,
+    source_reference: null
+  });
+
+  if (error) back(parsed.data.userId, "reward-error");
+
+  revalidatePath(`/admin/users/${parsed.data.userId}`);
+  back(parsed.data.userId, "reward-granted");
 }
