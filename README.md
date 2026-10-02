@@ -131,6 +131,19 @@ Current endpoints:
 
 Do not embed `SUPABASE_SERVICE_ROLE_KEY` or payment secrets in the game client.
 
+## Zero-cost deployment target
+
+The repository includes a Cloudflare Workers configuration using the official OpenNext adapter. A Cloudflare account is still required before a real deployment can be created.
+
+After the Supabase environment variables are configured as Cloudflare secrets/build variables:
+
+```bash
+npm run preview
+npm run deploy
+```
+
+The Worker name is `musical-survival-official`. Never store the Supabase service-role key or MoMo secret in `wrangler.jsonc` or Git.
+
 ## Local development
 
 ```bash
