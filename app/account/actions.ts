@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { usernameSchema, profileSchema } from "@/lib/validation";
+import { getRequestOrigin } from "@/lib/site-url";
 
 function accountRedirect(code: string): never {
   redirect(`/account?status=${encodeURIComponent(code)}`);
@@ -50,7 +51,18 @@ export async function requestEmailChange(formData: FormData) {
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) accountRedirect("invalid-email");
 
   const supabase = await createSupabaseServerClient();
-  const { error } = await supabase.auth.updateUser({ email });
+  const { data: currentUser } = await supabase.auth.getUser();
+
+  if (!currentUser.user) accountRedirect("email-error");
+  if (currentUser.user.email?.toLowerCase() === email) {
+    accountRedirect("email-same");
+  }
+
+  const origin = await getRequestOrigin();
+  const { error } = await supabase.auth.updateUser(
+    { email },
+    { emailRedirectTo: origin }
+  );
 
   if (error) accountRedirect("email-error");
   accountRedirect("email-sent");
