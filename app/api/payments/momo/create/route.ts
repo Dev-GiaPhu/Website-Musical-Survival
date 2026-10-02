@@ -6,6 +6,13 @@ import { createMomoRequestSignature, getMomoConfig } from "@/lib/momo";
 import { topupSchema } from "@/lib/validation";
 
 export async function POST(request: Request) {
+  const requestUrl = new URL(request.url);
+  const origin = request.headers.get("origin");
+
+  if (!origin || origin !== requestUrl.origin) {
+    return NextResponse.json({ error: "invalid_origin" }, { status: 403 });
+  }
+
   const supabase = await createSupabaseServerClient();
   const { data: authData } = await supabase.auth.getUser();
   if (!authData.user) return NextResponse.redirect(new URL("/auth", request.url), 303);
