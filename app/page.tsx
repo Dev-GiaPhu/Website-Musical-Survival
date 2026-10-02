@@ -3,8 +3,15 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 export default async function HomePage() {
   const supabase = await createSupabaseServerClient();
+  const { data: authData } = await supabase.auth.getUser();
+  const user = authData.user;
 
-  const [{ data: news }, { data: announcements }] = await Promise.all([
+  const [
+    { data: news },
+    { data: announcements },
+    { data: events },
+    profileResult
+  ] = await Promise.all([
     supabase
       .from("news_posts")
       .select("id,slug,title,summary,published_at")
@@ -16,8 +23,24 @@ export default async function HomePage() {
       .select("id,title,content,severity")
       .eq("active", true)
       .order("created_at", { ascending: false })
-      .limit(3)
+      .limit(3),
+    supabase
+      .from("game_events")
+      .select("id,slug,title,summary,starts_at,ends_at,reward_description")
+      .eq("status", "published")
+      .order("starts_at", { ascending: true })
+      .limit(3),
+    user
+      ? supabase
+          .from("profiles")
+          .select("username,display_name,role")
+          .eq("id", user.id)
+          .maybeSingle()
+      : Promise.resolve({ data: null })
   ]);
+
+  const profile = profileResult.data;
+  const playerName = profile?.display_name || profile?.username || "Người chơi";
 
   return (
     <>
@@ -42,15 +65,26 @@ export default async function HomePage() {
             <span>SURVIVAL</span>
           </h1>
           <p className="hero-copy">
-            Những thông tin chính thức về Musical Survival sẽ được công bố tại đây.
+            Tài khoản, tin tức, sự kiện và các thông tin chính thức của Musical Survival.
           </p>
           <div className="hero-actions">
             <Link className="button button-primary" href="/news">
               Xem tin mới
             </Link>
-            <Link className="button button-ghost" href="/auth">
-              Tài khoản người chơi
-            </Link>
+            {user ? (
+              <Link className="button button-ghost" href="/account">
+                Hồ sơ của {playerName}
+              </Link>
+            ) : (
+              <>
+                <Link className="button button-ghost" href="/auth?mode=register">
+                  Tạo tài khoản
+                </Link>
+                <Link className="button button-ghost" href="/auth?mode=login">
+                  Đăng nhập
+                </Link>
+              </>
+            )}
           </div>
           <div className="release-note">
             <span className="pulse" />
@@ -104,16 +138,68 @@ export default async function HomePage() {
         )}
       </section>
 
+      {events && events.length > 0 ? (
+        <section className="section shell">
+          <div className="section-heading">
+            <div>
+              <span className="kicker">SỰ KIỆN & MINI-GAME</span>
+              <h2>Đang diễn ra</h2>
+            </div>
+            <Link className="text-link" href="/events">Xem sự kiện</Link>
+          </div>
+          <div className="news-grid">
+            {events.map((event) => (
+              <article className="news-card event-card" key={event.id}>
+                <div className="news-meta">MUSICAL SURVIVAL EVENT</div>
+                <h3>{event.title}</h3>
+                <p>{event.summary}</p>
+                {event.reward_description ? (
+                  <div className="event-reward">{event.reward_description}</div>
+                ) : null}
+                <Link href={`/events/${event.slug}`}>Tham gia / xem chi tiết →</Link>
+              </article>
+            ))}
+          </div>
+        </section>
+      ) : null}
+
       <section className="section shell">
-        <div className="account-banner">
+        <div className={`account-banner ${user ? "account-banner-signed" : ""}`}>
           <div>
             <span className="kicker">TÀI KHOẢN MUSICAL SURVIVAL</span>
-            <h2>Thông tin người chơi ở một nơi</h2>
-            <p>
-              Đăng nhập để quản lý tài khoản và theo dõi các thông tin được liên kết với Musical Survival.
-            </p>
+            {user ? (
+              <>
+                <h2>Chào mừng trở lại, {playerName}</h2>
+                <p>
+                  Bạn đang đăng nhập bằng tài khoản Musical Survival dùng chung với game.
+                  Mở hồ sơ để quản lý danh tính, bảo mật, số dư và các liên kết tài khoản.
+                </p>
+              </>
+            ) : (
+              <>
+                <h2>Một tài khoản cho website và game</h2>
+                <p>
+                  Tạo tài khoản Musical Survival để sử dụng cùng một Player ID khi chơi game,
+                  quản lý hồ sơ và tham gia các sự kiện chính thức.
+                </p>
+              </>
+            )}
           </div>
-          <Link className="button button-primary" href="/account">Mở tài khoản</Link>
+          <div className="account-banner-actions">
+            {user ? (
+              <>
+                <Link className="button button-primary" href="/account">Mở hồ sơ</Link>
+                {profile?.role === "admin" || profile?.role === "super_admin" ? (
+                  <Link className="button button-ghost" href="/admin">Trang quản trị</Link>
+                ) : null}
+              </>
+            ) : (
+              <>
+                <Link className="button button-primary" href="/auth?mode=register">Đăng ký</Link>
+                <Link className="button button-ghost" href="/auth?mode=login">Đăng nhập</Link>
+              </>
+            )}
+          </div>
         </div>
       </section>
     </>
