@@ -86,3 +86,29 @@ export async function verifyPhoneLink(formData: FormData) {
   revalidatePath("/account");
   accountRedirect("phone-verified");
 }
+
+
+export async function unlinkGoogleIdentity(formData: FormData) {
+  const identityId = String(formData.get("identityId") || "").trim();
+  if (!identityId) accountRedirect("google-unlink-error");
+
+  const supabase = await createSupabaseServerClient();
+  const { data, error } = await supabase.auth.getUserIdentities();
+
+  if (error) accountRedirect("google-unlink-error");
+
+  const identities = data.identities ?? [];
+  if (identities.length <= 1) accountRedirect("google-unlink-last");
+
+  const target = identities.find(
+    (identity) => identity.id === identityId && identity.provider === "google"
+  );
+
+  if (!target) accountRedirect("google-unlink-error");
+
+  const { error: unlinkError } = await supabase.auth.unlinkIdentity(target);
+  if (unlinkError) accountRedirect("google-unlink-error");
+
+  revalidatePath("/account");
+  accountRedirect("google-unlinked");
+}
