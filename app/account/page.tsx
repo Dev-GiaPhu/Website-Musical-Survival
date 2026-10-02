@@ -239,10 +239,21 @@ export default async function AccountPage({
           </div>
           <div className="panel">
             <h2>Bảo mật tài khoản</h2>
-            <p className="panel-note">Nếu bạn đăng nhập trên thiết bị không còn sử dụng, hãy đăng xuất khỏi tài khoản.</p>
-            <form action="/auth/signout" method="post">
-              <button className="button button-ghost full" type="submit">Đăng xuất</button>
-            </form>
+            <p className="panel-note">
+              Bạn có thể kết thúc phiên hiện tại hoặc đăng xuất tài khoản khỏi tất cả thiết bị.
+            </p>
+            <div className="stack" style={{ marginTop: 16 }}>
+              <form action="/auth/signout" method="post">
+                <button className="button button-ghost full" type="submit">
+                  Đăng xuất thiết bị này
+                </button>
+              </form>
+              <form action="/auth/signout-all" method="post">
+                <button className="button button-ghost full" type="submit">
+                  Đăng xuất tất cả thiết bị
+                </button>
+              </form>
+            </div>
           </div>
         </aside>
       </section>
