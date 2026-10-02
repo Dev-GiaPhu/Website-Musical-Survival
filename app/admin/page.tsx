@@ -43,6 +43,10 @@ export default async function AdminPage({
           <span>Nội dung game</span>
           <strong>Quản lý gói nạp, vật phẩm và thành tựu →</strong>
         </Link>
+        <Link className="admin-shortcut" href="/admin/events">
+          <span>Sự kiện & Mini-game</span>
+          <strong>Tạo sự kiện, xét bài và trao thưởng →</strong>
+        </Link>
       </section>
 
       <section className="content-grid shell">
