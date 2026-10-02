@@ -50,7 +50,7 @@ export async function createEvent(formData: FormData) {
   const startsAt = parseVietnamDateTime(formData.get("startsAt"));
   const endsAt = parseVietnamDateTime(formData.get("endsAt"));
 
-  if (!parsed.success || !startsAt || !endsAt || new Date(endsAt) <= new Date(startsAt)) {
+  if (!parsed.success || !startsAt || !endsAt || new Date(endsAt).getTime() <= new Date(startsAt).getTime()) {
     adminEventRedirect("/admin/events", "invalid");
   }
 
@@ -99,7 +99,7 @@ export async function updateEvent(formData: FormData) {
   const endsAt = parseVietnamDateTime(formData.get("endsAt"));
   const status = z.enum(["draft", "published", "closed"]).safeParse(formData.get("eventStatus"));
 
-  if (!parsed.success || !startsAt || !endsAt || !status.success || new Date(endsAt) <= new Date(startsAt)) {
+  if (!parsed.success || !startsAt || !endsAt || !status.success || new Date(endsAt).getTime() <= new Date(startsAt).getTime()) {
     adminEventRedirect(`/admin/events/${eventId}`, "invalid");
   }
 
