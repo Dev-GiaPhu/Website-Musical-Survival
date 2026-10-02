@@ -5,7 +5,8 @@ import {
   changeUsername,
   requestEmailChange,
   requestPhoneLink,
-  verifyPhoneLink
+  verifyPhoneLink,
+  unlinkGoogleIdentity
 } from "./actions";
 
 const statusMessages: Record<string, { kind: "success" | "error"; text: string }> = {
@@ -14,6 +15,8 @@ const statusMessages: Record<string, { kind: "success" | "error"; text: string }
   "email-sent": { kind: "success", text: "Hãy kiểm tra hộp thư để hoàn tất thay đổi email." },
   "phone-sent": { kind: "success", text: "Mã xác minh đã được gửi đến số điện thoại." },
   "phone-verified": { kind: "success", text: "Số điện thoại đã được liên kết." },
+  "google-linked": { kind: "success", text: "Tài khoản Google mới đã được liên kết." },
+  "google-unlinked": { kind: "success", text: "Tài khoản Google đã được gỡ liên kết." },
   "invalid-profile": { kind: "error", text: "Tên hiển thị không hợp lệ." },
   "invalid-username": { kind: "error", text: "Tên người chơi cần 3–20 ký tự, chỉ gồm chữ, số và dấu gạch dưới." },
   "username-taken": { kind: "error", text: "Tên người chơi này đã được sử dụng." },
@@ -25,7 +28,10 @@ const statusMessages: Record<string, { kind: "success" | "error"; text: string }
   "invalid-phone": { kind: "error", text: "Số điện thoại cần có mã quốc gia, ví dụ +84." },
   "invalid-phone-code": { kind: "error", text: "Mã xác minh không hợp lệ." },
   "phone-code-error": { kind: "error", text: "Không thể xác minh số điện thoại. Hãy kiểm tra lại mã." },
-  "phone-unavailable": { kind: "error", text: "Xác minh số điện thoại hiện chưa sẵn sàng." }
+  "phone-unavailable": { kind: "error", text: "Xác minh số điện thoại hiện chưa sẵn sàng." },
+  "google-link-error": { kind: "error", text: "Không thể liên kết tài khoản Google mới." },
+  "google-unlink-error": { kind: "error", text: "Không thể gỡ tài khoản Google này." },
+  "google-unlink-last": { kind: "error", text: "Cần giữ lại ít nhất một phương thức đăng nhập." }
 };
 
 function formatDate(value?: string | null) {
@@ -61,6 +67,9 @@ export default async function AccountPage({
   ]);
 
   const message = params.status ? statusMessages[params.status] : undefined;
+  const googleIdentities = (user.identities ?? []).filter(
+    (identity) => identity.provider === "google"
+  );
 
   return (
     <>
@@ -147,7 +156,35 @@ export default async function AccountPage({
           </div>
 
           <div className="panel">
-            <h2>Thay đổi email</h2>
+            <h2>Tài khoản Google liên kết</h2>
+            <div className="stack">
+              {googleIdentities.length > 0 ? googleIdentities.map((identity) => {
+                const identityEmail =
+                  (identity.identity_data as { email?: string } | undefined)?.email || "Tài khoản Google";
+
+                return (
+                  <div className="profile-row" key={identity.id}>
+                    <span>Google</span>
+                    <div style={{ display: "grid", gap: 8, justifyItems: "end" }}>
+                      <strong>{identityEmail}</strong>
+                      {googleIdentities.length > 1 ? (
+                        <form action={unlinkGoogleIdentity}>
+                          <input type="hidden" name="identityId" value={identity.id} />
+                          <button className="text-button" type="submit">Gỡ liên kết</button>
+                        </form>
+                      ) : null}
+                    </div>
+                  </div>
+                );
+              }) : <p className="panel-note">Chưa có tài khoản Google được liên kết.</p>}
+            </div>
+            <a className="button button-ghost full" href="/account/google/link" style={{ marginTop: 16 }}>
+              Liên kết tài khoản Google khác
+            </a>
+          </div>
+
+          <div className="panel">
+            <h2>Thay đổi email liên hệ</h2>
             <form action={requestEmailChange} className="form-grid">
               <div className="field">
                 <label htmlFor="email">Email mới</label>
