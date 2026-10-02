@@ -42,7 +42,12 @@ export default async function AdminUsersPage() {
             </div>
             {users?.length ? users.map((user) => (
               <div className="data-row" key={user.id}>
-                <span><strong>{user.display_name || user.username || "Chưa đặt tên"}</strong><small>{user.username || user.id}</small></span>
+                <span>
+                  <Link href={`/admin/users/${user.id}`}>
+                    <strong>{user.display_name || user.username || "Chưa đặt tên"}</strong>
+                    <small>{user.username || user.id}</small>
+                  </Link>
+                </span>
                 <span>
                   {user.status === "active" ? (
                     <span className={`badge ${isOnline(user.last_seen_at) ? "badge-online" : ""}`}>
