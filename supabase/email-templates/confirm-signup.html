@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="vi">
+  <body style="margin:0;background:#08090d;font-family:Inter,Arial,sans-serif;color:#f7f7fb;">
+    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#08090d;padding:40px 16px;">
+      <tr><td align="center">
+        <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:620px;background:#11131a;border:1px solid #282b36;border-radius:22px;overflow:hidden;">
+          <tr><td style="padding:30px 34px;border-bottom:1px solid #282b36;background:linear-gradient(135deg,#181327,#101b25);">
+            <div style="font-size:12px;letter-spacing:4px;color:#bca3ff;font-weight:800;">MUSICAL SURVIVAL</div>
+            <div style="font-size:13px;color:#8f93a3;margin-top:6px;">OFFICIAL ACCOUNT</div>
+          </td></tr>
+          <tr><td style="padding:38px 34px;">
+            <h1 style="margin:0 0 14px;font-size:30px;line-height:1.15;color:#ffffff;">Xác minh tài khoản của bạn</h1>
+            <p style="margin:0 0 20px;color:#b8bbc7;font-size:15px;line-height:1.7;">
+              Chào mừng bạn đến với Musical Survival. Hãy xác minh email này để kích hoạt tài khoản dùng chung trên website và trong game.
+            </p>
+            <table role="presentation" cellspacing="0" cellpadding="0"><tr><td style="border-radius:12px;background:#ffffff;">
+              <a href="{{ .RedirectTo }}/auth/confirm?token_hash={{ .TokenHash }}&type=email&next=/account"
+                 style="display:inline-block;padding:14px 22px;color:#090a0f;text-decoration:none;font-weight:800;font-size:14px;">
+                Xác minh email
+              </a>
+            </td></tr></table>
+            <p style="margin:26px 0 0;color:#777c8e;font-size:12px;line-height:1.7;">
+              Nếu bạn không tạo tài khoản Musical Survival, bạn có thể bỏ qua email này.
+            </p>
+          </td></tr>
+          <tr><td style="padding:22px 34px;border-top:1px solid #282b36;color:#656a79;font-size:11px;">
+            Musical Survival · Email bảo mật tài khoản
+          </td></tr>
+        </table>
+      </td></tr>
+    </table>
+  </body>
+</html>
