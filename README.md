@@ -48,11 +48,17 @@ SUPABASE_SERVICE_ROLE_KEY=
 
 Never commit `.env.local` or a service-role key.
 
-### Google login
+### Google login and changing the linked Gmail
 
 In Google Cloud, create an OAuth Web Client for the site and configure the Google provider in Supabase Auth.
 
 Add the exact Supabase callback URL shown by Supabase to the Google OAuth client. Also add the website URL to Supabase Auth redirect URLs.
+
+In Supabase Auth, enable **Manual Identity Linking** before exposing the account-linking controls. The account page uses this flow deliberately: a player links another Google identity first, verifies access to it through Google, and only then can remove an older Google identity. The last remaining sign-in identity cannot be removed.
+
+### Phone verification
+
+The account page contains a real phone-change OTP flow, but SMS delivery requires a supported phone provider configured in Supabase Auth. Do not present phone verification as available to players until an SMS provider is configured and tested. SMS may have provider charges even when the Supabase project itself is on a free tier.
 
 ## 2. First administrator
 
@@ -117,6 +123,7 @@ Authorization: Bearer <SUPABASE_ACCESS_TOKEN>
 
 Current endpoints:
 
+- `GET /api/health`
 - `GET /api/game/v1/me`
 - `POST /api/game/v1/heartbeat`
 - `POST /api/game/v1/store/purchase`
