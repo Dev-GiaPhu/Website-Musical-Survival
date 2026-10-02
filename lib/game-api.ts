@@ -25,5 +25,13 @@ export async function getGameSession(request: Request) {
   const { data, error } = await supabase.auth.getUser(token);
   if (error || !data.user) return null;
 
+  const { data: profile, error: profileError } = await supabase
+    .from("profiles")
+    .select("status")
+    .eq("id", data.user.id)
+    .single();
+
+  if (profileError || profile?.status !== "active") return null;
+
   return { user: data.user, supabase };
 }
