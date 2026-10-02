@@ -70,6 +70,8 @@ export default async function AccountPage({
   const googleIdentities = (user.identities ?? []).filter(
     (identity) => identity.provider === "google"
   );
+  const phoneVerificationEnabled =
+    process.env.NEXT_PUBLIC_PHONE_VERIFICATION_ENABLED === "true";
 
   return (
     <>
@@ -196,27 +198,35 @@ export default async function AccountPage({
 
           <div className="panel">
             <h2>Liên kết số điện thoại</h2>
-            <form action={requestPhoneLink} className="form-grid">
-              <div className="field">
-                <label htmlFor="phone">Số điện thoại</label>
-                <input id="phone" name="phone" type="tel" placeholder="+84..." required />
-              </div>
-              <button className="button button-primary" type="submit">Gửi mã xác minh</button>
-            </form>
+            {phoneVerificationEnabled ? (
+              <>
+                <form action={requestPhoneLink} className="form-grid">
+                  <div className="field">
+                    <label htmlFor="phone">Số điện thoại</label>
+                    <input id="phone" name="phone" type="tel" placeholder="+84..." required />
+                  </div>
+                  <button className="button button-primary" type="submit">Gửi mã xác minh</button>
+                </form>
 
-            <div style={{ height: 1, background: "var(--line)", margin: "24px 0" }} />
+                <div style={{ height: 1, background: "var(--line)", margin: "24px 0" }} />
 
-            <form action={verifyPhoneLink} className="form-grid">
-              <div className="field">
-                <label htmlFor="verifyPhone">Số điện thoại vừa nhận mã</label>
-                <input id="verifyPhone" name="phone" type="tel" placeholder="+84..." required />
-              </div>
-              <div className="field">
-                <label htmlFor="token">Mã 6 số</label>
-                <input id="token" name="token" inputMode="numeric" pattern="[0-9]{6}" maxLength={6} required />
-              </div>
-              <button className="button button-ghost" type="submit">Xác minh số điện thoại</button>
-            </form>
+                <form action={verifyPhoneLink} className="form-grid">
+                  <div className="field">
+                    <label htmlFor="verifyPhone">Số điện thoại vừa nhận mã</label>
+                    <input id="verifyPhone" name="phone" type="tel" placeholder="+84..." required />
+                  </div>
+                  <div className="field">
+                    <label htmlFor="token">Mã 6 số</label>
+                    <input id="token" name="token" inputMode="numeric" pattern="[0-9]{6}" maxLength={6} required />
+                  </div>
+                  <button className="button button-ghost" type="submit">Xác minh số điện thoại</button>
+                </form>
+              </>
+            ) : (
+              <p className="panel-note">
+                Liên kết số điện thoại chưa được mở. Thông tin sẽ được cập nhật khi tính năng sẵn sàng.
+              </p>
+            )}
           </div>
         </div>
 
