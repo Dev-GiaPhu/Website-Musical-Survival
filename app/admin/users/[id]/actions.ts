@@ -24,6 +24,12 @@ const rewardSchema = z.object({
   reason: z.string().trim().min(3).max(500)
 });
 
+const roleSchema = z.object({
+  userId: z.string().uuid(),
+  role: z.enum(["player", "moderator", "admin", "super_admin"]),
+  reason: z.string().trim().min(3).max(500)
+});
+
 function back(userId: string, status: string): never {
   redirect(`/admin/users/${encodeURIComponent(userId)}?status=${encodeURIComponent(status)}`);
 }
@@ -118,4 +124,37 @@ export async function grantReward(formData: FormData) {
 
   revalidatePath(`/admin/users/${parsed.data.userId}`);
   back(parsed.data.userId, "reward-granted");
+}
+
+
+export async function setPlayerRole(formData: FormData) {
+  await requireAdmin();
+
+  const parsed = roleSchema.safeParse({
+    userId: formData.get("userId"),
+    role: formData.get("role"),
+    reason: formData.get("reason")
+  });
+
+  if (!parsed.success) {
+    const userId = String(formData.get("userId") || "");
+    back(userId, "invalid-role");
+  }
+
+  const supabase = await createSupabaseServerClient();
+  const { error } = await supabase.rpc("admin_set_player_role", {
+    target_user_id: parsed.data.userId,
+    new_role: parsed.data.role,
+    reason: parsed.data.reason
+  });
+
+  if (error) {
+    if (error.message.includes("FORBIDDEN")) back(parsed.data.userId, "role-forbidden");
+    if (error.message.includes("CANNOT_DEMOTE_SELF")) back(parsed.data.userId, "role-self");
+    back(parsed.data.userId, "role-error");
+  }
+
+  revalidatePath("/admin/users");
+  revalidatePath(`/admin/users/${parsed.data.userId}`);
+  back(parsed.data.userId, "role-updated");
 }
