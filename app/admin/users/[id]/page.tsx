@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { requireAdmin } from "@/lib/auth";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
-import { adjustWallet, grantReward, setPlayerStatus } from "./actions";
+import { adjustWallet, grantReward, setPlayerRole, setPlayerStatus } from "./actions";
 
 const messages: Record<string, { kind: "success" | "error"; text: string }> = {
   "status-updated": { kind: "success", text: "Trạng thái người chơi đã được cập nhật." },
@@ -15,7 +15,12 @@ const messages: Record<string, { kind: "success" | "error"; text: string }> = {
   "wallet-error": { kind: "error", text: "Không thể điều chỉnh số dư." },
   "reward-granted": { kind: "success", text: "Phần thưởng đã được cộng vào tài khoản và ghi vào lịch sử." },
   "invalid-reward": { kind: "error", text: "Thông tin phần thưởng không hợp lệ." },
-  "reward-error": { kind: "error", text: "Không thể trao phần thưởng." }
+  "reward-error": { kind: "error", text: "Không thể trao phần thưởng." },
+  "role-updated": { kind: "success", text: "Quyền của tài khoản đã được cập nhật." },
+  "invalid-role": { kind: "error", text: "Thông tin quyền không hợp lệ." },
+  "role-forbidden": { kind: "error", text: "Chỉ Super Admin mới có thể thay đổi quyền." },
+  "role-self": { kind: "error", text: "Super Admin không thể tự hạ quyền của chính mình." },
+  "role-error": { kind: "error", text: "Không thể cập nhật quyền tài khoản." }
 };
 
 function formatDate(value?: string | null) {
@@ -77,6 +82,7 @@ export default async function AdminUserDetailPage({
 
   const message = query.status ? messages[query.status] : undefined;
   const canAdjustWallet = adminProfile?.role === "super_admin";
+  const canManageRoles = adminProfile?.role === "super_admin";
 
   return (
     <>
@@ -178,6 +184,32 @@ export default async function AdminUserDetailPage({
               <button className="button button-primary" type="submit">Trao phần thưởng</button>
             </form>
           </div>
+
+          {canManageRoles ? (
+            <div className="panel">
+              <h2>Quyền tài khoản</h2>
+              <p className="panel-note">
+                Thay đổi quyền được ghi vào audit log. Chỉ Super Admin có thể thực hiện.
+              </p>
+              <form action={setPlayerRole} className="form-grid">
+                <input type="hidden" name="userId" value={profile.id} />
+                <div className="field">
+                  <label htmlFor="role">Quyền mới</label>
+                  <select id="role" name="role" className="select-field" defaultValue={profile.role}>
+                    <option value="player">Player</option>
+                    <option value="moderator">Moderator</option>
+                    <option value="admin">Admin</option>
+                    <option value="super_admin">Super Admin</option>
+                  </select>
+                </div>
+                <div className="field">
+                  <label htmlFor="roleReason">Lý do</label>
+                  <textarea id="roleReason" name="reason" minLength={3} maxLength={500} required />
+                </div>
+                <button className="button button-ghost" type="submit">Cập nhật quyền</button>
+              </form>
+            </div>
+          ) : null}
 
           {canAdjustWallet ? (
             <div className="panel">
