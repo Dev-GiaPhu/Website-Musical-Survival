@@ -12,11 +12,23 @@ export default async function AdminPage({
   const params = await searchParams;
   const supabase = await createSupabaseServerClient();
 
-  const { data: posts } = await supabase
-    .from("news_posts")
-    .select("id,title,published,created_at")
-    .order("created_at", { ascending: false })
-    .limit(10);
+  const [
+    { data: posts },
+    playersCount,
+    activeEventsCount,
+    pendingPaymentsCount,
+    publishedNewsCount
+  ] = await Promise.all([
+    supabase
+      .from("news_posts")
+      .select("id,title,published,created_at")
+      .order("created_at", { ascending: false })
+      .limit(10),
+    supabase.from("profiles").select("id", { count: "exact", head: true }),
+    supabase.from("game_events").select("id", { count: "exact", head: true }).eq("status", "published"),
+    supabase.from("payment_orders").select("id", { count: "exact", head: true }).eq("status", "pending"),
+    supabase.from("news_posts").select("id", { count: "exact", head: true }).eq("published", true)
+  ]);
 
   return (
     <>
@@ -24,6 +36,13 @@ export default async function AdminPage({
         <span className="kicker">MUSICAL SURVIVAL</span>
         <h1>Quản lý nội dung</h1>
         <p>Khu vực dành cho đội ngũ phát hành Musical Survival.</p>
+      </section>
+
+      <section className="admin-stats shell">
+        <div className="panel"><span>Người chơi</span><strong>{playersCount.count ?? 0}</strong></div>
+        <div className="panel"><span>Sự kiện công bố</span><strong>{activeEventsCount.count ?? 0}</strong></div>
+        <div className="panel"><span>Giao dịch chờ</span><strong>{pendingPaymentsCount.count ?? 0}</strong></div>
+        <div className="panel"><span>Tin đã công bố</span><strong>{publishedNewsCount.count ?? 0}</strong></div>
       </section>
 
       <section className="admin-shortcuts shell">
@@ -46,6 +65,14 @@ export default async function AdminPage({
         <Link className="admin-shortcut" href="/admin/events">
           <span>Sự kiện & Mini-game</span>
           <strong>Tạo sự kiện, xét bài và trao thưởng →</strong>
+        </Link>
+        <Link className="admin-shortcut" href="/admin/audit">
+          <span>Audit log</span>
+          <strong>Kiểm tra thao tác quản trị →</strong>
+        </Link>
+        <Link className="admin-shortcut" href="/admin/security">
+          <span>Bảo mật</span>
+          <strong>Theo dõi security events →</strong>
         </Link>
       </section>
 
