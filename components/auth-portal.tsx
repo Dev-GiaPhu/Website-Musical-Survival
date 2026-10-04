@@ -43,9 +43,9 @@ export function AuthPortal() {
     const supabase = createSupabaseBrowserClient();
     let active = true;
 
-    void supabase.auth.getUser().then(({ data }) => {
+    void supabase.auth.getUser().then((result: { data: { user: User | null } }) => {
       if (!active) return;
-      setSignedIn(Boolean(data.user));
+      setSignedIn(Boolean(result.data.user));
       setSessionLoaded(true);
     });
 
