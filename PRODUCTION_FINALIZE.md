@@ -64,9 +64,6 @@ Required deployment secrets:
 - `NEXT_PUBLIC_SUPABASE_URL`
 - `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`
 - `SUPABASE_SERVICE_ROLE_KEY`
-
-Recommended for initial publisher setup:
-
 - `BOOTSTRAP_ADMIN_EMAIL`
 
 Optional features:
