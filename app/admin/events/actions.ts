@@ -180,3 +180,26 @@ export async function markEntryNotSelected(formData: FormData) {
   revalidatePath(`/admin/events/${eventId.data}`);
   adminEventRedirect(`/admin/events/${eventId.data}`, "reviewed");
 }
+
+
+export async function deleteEvent(formData: FormData) {
+  await requireAdmin();
+
+  const eventId = z.string().uuid().safeParse(formData.get("eventId"));
+  if (!eventId.success) adminEventRedirect("/admin/events", "invalid");
+
+  const supabase = await createSupabaseServerClient();
+  const { error } = await supabase
+    .from("game_events")
+    .delete()
+    .eq("id", eventId.data);
+
+  if (error) {
+    adminEventRedirect(`/admin/events/${eventId.data}`, "delete-error");
+  }
+
+  revalidatePath("/");
+  revalidatePath("/events");
+  revalidatePath("/admin/events");
+  adminEventRedirect("/admin/events", "deleted");
+}
