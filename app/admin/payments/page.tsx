@@ -4,7 +4,7 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 type PaymentRow = {
   id: string;
-  user_id: string;
+  user_id: string | null;
   provider_order_id: string;
   provider_transaction_id: string | null;
   amount_vnd: number;
@@ -56,7 +56,7 @@ export default async function AdminPaymentsPage({
 
   const { data, count, error } = await query;
   const orders = (data as PaymentRow[] | null) ?? [];
-  const userIds = [...new Set(orders.map((order) => order.user_id))];
+  const userIds = [...new Set(orders.map((order) => order.user_id).filter(Boolean))] as string[];
 
   const { data: profiles } = userIds.length
     ? await supabase.from("profiles").select("id,username,display_name").in("id", userIds)
@@ -115,7 +115,7 @@ export default async function AdminPaymentsPage({
               <span>Giao dịch</span><span>Người chơi</span><span>Giá trị</span><span>Trạng thái</span>
             </div>
             {orders.length ? orders.map((order) => {
-              const profile = profileMap.get(order.user_id);
+              const profile = order.user_id ? profileMap.get(order.user_id) : null;
               return (
                 <div className="data-row" key={order.id}>
                   <span>
@@ -123,10 +123,17 @@ export default async function AdminPaymentsPage({
                     <small>{formatDate(order.created_at)}</small>
                   </span>
                   <span>
-                    <Link href={`/admin/users/${order.user_id}`}>
-                      <strong>{profile?.display_name || profile?.username || "Người chơi"}</strong>
-                      <small>{profile?.username || order.user_id}</small>
-                    </Link>
+                    {order.user_id ? (
+                      <Link href={`/admin/users/${order.user_id}`}>
+                        <strong>{profile?.display_name || profile?.username || "Người chơi"}</strong>
+                        <small>{profile?.username || order.user_id}</small>
+                      </Link>
+                    ) : (
+                      <>
+                        <strong>Tài khoản đã xóa</strong>
+                        <small>Dữ liệu giao dịch được giữ để đối soát</small>
+                      </>
+                    )}
                   </span>
                   <span>
                     {Number(order.amount_vnd).toLocaleString("vi-VN")} ₫
