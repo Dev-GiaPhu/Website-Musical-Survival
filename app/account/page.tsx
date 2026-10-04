@@ -8,8 +8,10 @@ import {
   requestEmailChange,
   requestPhoneLink,
   verifyPhoneLink,
-  unlinkGoogleIdentity
+  unlinkGoogleIdentity,
+  deleteOwnAccount
 } from "./actions";
+import { AccountGameData } from "@/components/account-game-data";
 
 const statusMessages: Record<string, { kind: "success" | "error"; text: string }> = {
   "welcome": { kind: "success", text: "Tài khoản Musical Survival đã sẵn sàng." },
@@ -44,7 +46,10 @@ const statusMessages: Record<string, { kind: "success" | "error"; text: string }
   "phone-unavailable": { kind: "error", text: "Xác minh số điện thoại hiện chưa sẵn sàng." },
   "google-link-error": { kind: "error", text: "Không thể liên kết tài khoản Google mới." },
   "google-unlink-error": { kind: "error", text: "Không thể gỡ tài khoản Google này." },
-  "google-unlink-last": { kind: "error", text: "Cần giữ lại ít nhất một phương thức đăng nhập." }
+  "google-unlink-last": { kind: "error", text: "Cần giữ lại ít nhất một phương thức đăng nhập." },
+  "delete-invalid": { kind: "error", text: "Hãy nhập đầy đủ thông tin xác nhận trước khi xóa tài khoản." },
+  "delete-mismatch": { kind: "error", text: "Tên người chơi hoặc email xác nhận không khớp với tài khoản hiện tại." },
+  "delete-error": { kind: "error", text: "Không thể xóa tài khoản vào lúc này. Vui lòng thử lại sau." }
 };
 
 function formatDate(value?: string | null) {
@@ -65,16 +70,11 @@ export default async function AccountPage({
   const supabase = await createSupabaseServerClient();
   await supabase.rpc("touch_presence");
 
-  const [{ data: profile }, { data: wallet }, params] = await Promise.all([
+  const [{ data: profile }, params] = await Promise.all([
     supabase
       .from("profiles")
       .select("username,display_name,role,status,created_at,updated_at,last_seen_at")
       .eq("id", user.id)
-      .single(),
-    supabase
-      .from("wallets")
-      .select("coin_balance")
-      .eq("user_id", user.id)
       .single(),
     searchParams
   ]);
@@ -163,6 +163,8 @@ export default async function AccountPage({
               <strong>{formatDate(profile?.updated_at)}</strong>
             </div>
           </div>
+
+          <AccountGameData />
 
           <div className="panel">
             <h2>Đổi tên hiển thị</h2>
@@ -285,10 +287,14 @@ export default async function AccountPage({
 
         <aside className="stack">
           <div className="panel">
-            <span className="kicker">SỐ DƯ</span>
-            <p className="stat-number">{(wallet?.coin_balance ?? 0).toLocaleString("vi-VN")}</p>
-            <p className="panel-note">Số dư được dùng chung với Musical Survival.</p>
-            <a className="button button-primary full" href="/top-up">Nạp tiền</a>
+            <span className="kicker">DỮ LIỆU TÀI KHOẢN</span>
+            <h2>Tải bản sao dữ liệu</h2>
+            <p className="panel-note">
+              Tải dữ liệu hồ sơ, tiến trình, vật phẩm, thành tựu, giao dịch và các hoạt động được liên kết với Player ID này.
+            </p>
+            <a className="button button-ghost full" href="/api/account/export">
+              Tải dữ liệu JSON
+            </a>
           </div>
 
           {canBootstrapAdmin ? (
@@ -333,6 +339,43 @@ export default async function AccountPage({
                 </button>
               </form>
             </div>
+          </div>
+
+          <div className="panel danger-panel">
+            <h2>Xóa tài khoản</h2>
+            <p className="panel-note">
+              Xóa vĩnh viễn Player ID và dữ liệu tài khoản liên kết. Hành động này không thể hoàn tác.
+              Hãy tải bản sao dữ liệu trước nếu bạn muốn lưu lại thông tin.
+            </p>
+            <form action={deleteOwnAccount} className="form-grid" style={{ marginTop: 16 }}>
+              <div className="field">
+                <label htmlFor="deleteUsername">Nhập tên người chơi để xác nhận</label>
+                <input
+                  id="deleteUsername"
+                  name="username"
+                  autoComplete="off"
+                  placeholder={profile?.username || ""}
+                  required
+                />
+              </div>
+              <div className="field">
+                <label htmlFor="deleteEmail">Nhập email hiện tại</label>
+                <input
+                  id="deleteEmail"
+                  name="email"
+                  type="email"
+                  autoComplete="email"
+                  required
+                />
+              </div>
+              <label className="check-row">
+                <input name="confirmation" type="checkbox" required />
+                Tôi hiểu tài khoản và dữ liệu liên kết sẽ bị xóa vĩnh viễn.
+              </label>
+              <button className="button button-danger full" type="submit">
+                Xóa vĩnh viễn tài khoản
+              </button>
+            </form>
           </div>
         </aside>
       </section>
