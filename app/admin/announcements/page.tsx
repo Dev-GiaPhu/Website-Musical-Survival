@@ -14,7 +14,7 @@ export default async function AnnouncementsAdminPage({
 
   const { data: items } = await supabase
     .from("announcements")
-    .select("id,title,severity,active,created_at")
+    .select("id,title,severity,active,starts_at,ends_at,created_at")
     .order("created_at", { ascending: false })
     .limit(12);
 
@@ -53,9 +53,19 @@ export default async function AnnouncementsAdminPage({
                 <option value="important">Quan trọng</option>
               </select>
             </div>
+            <div className="form-two">
+              <div className="field">
+                <label htmlFor="startsAt">Bắt đầu — giờ Việt Nam</label>
+                <input id="startsAt" name="startsAt" type="datetime-local" />
+              </div>
+              <div className="field">
+                <label htmlFor="endsAt">Kết thúc — giờ Việt Nam</label>
+                <input id="endsAt" name="endsAt" type="datetime-local" />
+              </div>
+            </div>
             <label className="check-row">
               <input name="active" type="checkbox" />
-              Hiển thị ngay
+              Bật thông báo
             </label>
             <button className="button button-primary" type="submit">Lưu thông báo</button>
           </form>
@@ -67,7 +77,10 @@ export default async function AnnouncementsAdminPage({
             {items?.length ? items.map((item) => (
               <div className="admin-content-row" key={item.id}>
                 <div>
-                  <span>{item.active ? "Đang hiển thị" : "Đã ẩn"} · {item.severity}</span>
+                  <span>
+                    {item.active ? "Đang bật" : "Đã tắt"} · {item.severity}
+                    {item.starts_at ? " · có lịch" : ""}
+                  </span>
                   <strong>{item.title}</strong>
                 </div>
                 <div className="admin-row-actions">
