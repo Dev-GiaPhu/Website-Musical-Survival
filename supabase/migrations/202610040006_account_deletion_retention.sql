@@ -68,3 +68,9 @@ alter table public.game_events
 -- Existing policies continue to work:
 -- payment_orders rows with user_id NULL are no longer visible to players,
 -- while admins retain access through public.is_admin().
+
+
+drop policy if exists "wallet_ledger_admin_orphan_select" on public.wallet_ledger;
+create policy "wallet_ledger_admin_orphan_select"
+on public.wallet_ledger for select
+using (wallet_id is null and public.is_admin());
