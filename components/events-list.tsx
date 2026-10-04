@@ -35,7 +35,8 @@ export function EventsList() {
       .select("id,slug,title,summary,reward_description,starts_at,ends_at")
       .eq("status", "published")
       .order("starts_at", { ascending: false })
-      .then(({ data }) => {
+      .then((result) => {
+        const data = result.data;
         if (!active) return;
         setEvents((data as GameEvent[] | null) ?? []);
         setLoaded(true);
