@@ -81,6 +81,7 @@ export default function RootLayout({
               <Link href="/events">Sự kiện</Link>
               <Link href="/store">Cửa hàng</Link>
               <Link href="/support">Hỗ trợ</Link>
+              <Link href="/status">Trạng thái</Link>
               <Link href="/legal/privacy">Quyền riêng tư</Link>
               <Link href="/legal/terms">Điều khoản</Link>
             </div>
