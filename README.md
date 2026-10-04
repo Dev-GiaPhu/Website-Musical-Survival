@@ -37,6 +37,7 @@ supabase/migrations/202610020001_initial.sql
 supabase/migrations/202610020002_admin_operations.sql
 supabase/migrations/202610020003_game_state_api.sql
 supabase/migrations/202610030004_accounts_rewards_events.sql
+supabase/migrations/202610040005_admin_management.sql
 ```
 
 You can apply it with the Supabase CLI or SQL editor.
@@ -219,3 +220,16 @@ The website and game use the same Supabase Auth users and the same `profiles`, w
 ## Events and rewards
 
 Run `202610030004_accounts_rewards_events.sql` before enabling the events UI. Admins can create official events, review one submission per player, grant audited rewards and grant direct account rewards. Reward credits always pass through wallet transactions, ledger records and audit logs.
+
+
+## Production migration order
+
+Before deploying the current `main` branch to production, apply migrations in this order:
+
+1. `202610020001_initial.sql`
+2. `202610020002_admin_operations.sql`
+3. `202610020003_game_state_api.sql`
+4. `202610030004_accounts_rewards_events.sql`
+5. `202610040005_admin_management.sql`
+
+The last two migrations power unified account onboarding, admin rewards, events/mini-games, player role management, search and pagination.
