@@ -101,7 +101,7 @@ jobs:
       - name: Smoke test production
         shell: bash
         run: |
-          for path in "/" "/auth?mode=login" "/news" "/events" "/store" "/api/health"; do
+          for path in "/" "/auth?mode=login" "/news" "/events" "/store" "/api/health?deep=1"; do
             echo "Checking $PRODUCTION_URL$path"
             curl --fail --silent --show-error --location               --retry 6 --retry-all-errors --retry-delay 3               --max-time 30               "$PRODUCTION_URL$path" > /dev/null
           done
