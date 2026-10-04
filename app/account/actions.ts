@@ -6,6 +6,7 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { usernameSchema, profileSchema } from "@/lib/validation";
 import { getRequestOrigin } from "@/lib/site-url";
+import { recordSecurityEvent } from "@/lib/security-events";
 
 function accountRedirect(code: string): never {
   redirect(`/account?status=${encodeURIComponent(code)}`);
@@ -66,6 +67,14 @@ export async function requestEmailChange(formData: FormData) {
   );
 
   if (error) accountRedirect("email-error");
+
+  await recordSecurityEvent({
+    userId: currentUser.user.id,
+    eventType: "account.email_change_requested",
+    severity: "info",
+    details: { newEmail: email }
+  });
+
   accountRedirect("email-sent");
 }
 
@@ -96,6 +105,13 @@ export async function verifyPhoneLink(formData: FormData) {
 
   if (error) accountRedirect("phone-code-error");
 
+  const { data: verifiedUser } = await supabase.auth.getUser();
+  await recordSecurityEvent({
+    userId: verifiedUser.user?.id || null,
+    eventType: "account.phone_verified",
+    severity: "info"
+  });
+
   revalidatePath("/account");
   accountRedirect("phone-verified");
 }
@@ -121,6 +137,14 @@ export async function unlinkGoogleIdentity(formData: FormData) {
 
   const { error: unlinkError } = await supabase.auth.unlinkIdentity(target);
   if (unlinkError) accountRedirect("google-unlink-error");
+
+  const { data: identityUser } = await supabase.auth.getUser();
+  await recordSecurityEvent({
+    userId: identityUser.user?.id || null,
+    eventType: "account.google_identity_unlinked",
+    severity: "warning",
+    details: { identityId }
+  });
 
   revalidatePath("/account");
   accountRedirect("google-unlinked");
@@ -160,6 +184,12 @@ export async function deleteOwnAccount(formData: FormData) {
   }
 
   const admin = createSupabaseAdminClient();
+
+  await recordSecurityEvent({
+    userId: user.id,
+    eventType: "account.self_delete_requested",
+    severity: "critical"
+  });
 
   await admin.from("audit_logs").insert({
     actor_user_id: user.id,
