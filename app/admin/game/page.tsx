@@ -12,7 +12,10 @@ const messages: Record<string, { kind: "success" | "error"; text: string }> = {
   "item-invalid": { kind: "error", text: "Thông tin vật phẩm không hợp lệ." },
   "item-error": { kind: "error", text: "Không thể lưu vật phẩm. Hãy kiểm tra SKU có bị trùng hay không." },
   "achievement-invalid": { kind: "error", text: "Thông tin thành tựu không hợp lệ." },
-  "achievement-error": { kind: "error", text: "Không thể lưu thành tựu. Hãy kiểm tra mã có bị trùng hay không." }
+  "achievement-error": { kind: "error", text: "Không thể lưu thành tựu. Hãy kiểm tra mã có bị trùng hay không." },
+  "package-deleted": { kind: "success", text: "Gói nạp đã được xóa." },
+  "item-deleted": { kind: "success", text: "Vật phẩm đã được xóa." },
+  "achievement-deleted": { kind: "success", text: "Thành tựu đã được xóa." }
 };
 
 export default async function AdminGamePage({
@@ -62,10 +65,10 @@ export default async function AdminGamePage({
           <aside className="panel">
             <h2>Gói nạp gần đây</h2>
             {packages?.length ? packages.map((item) => (
-              <div className="profile-row" key={item.id}>
+              <Link className="admin-list-link" href={`/admin/game/package/${item.id}`} key={item.id}>
                 <span>{item.active ? "Đang mở" : "Đang ẩn"} · {item.code}</span>
                 <strong>{item.name}</strong>
-              </div>
+              </Link>
             )) : <p className="panel-note">Chưa có gói nạp.</p>}
           </aside>
         </div>
@@ -84,10 +87,10 @@ export default async function AdminGamePage({
           <aside className="panel">
             <h2>Vật phẩm gần đây</h2>
             {items?.length ? items.map((item) => (
-              <div className="profile-row" key={item.id}>
+              <Link className="admin-list-link" href={`/admin/game/item/${item.id}`} key={item.id}>
                 <span>{item.active ? "Đang mở" : "Đang ẩn"} · {item.sku}</span>
                 <strong>{item.name}</strong>
-              </div>
+              </Link>
             )) : <p className="panel-note">Chưa có vật phẩm.</p>}
           </aside>
         </div>
@@ -107,10 +110,10 @@ export default async function AdminGamePage({
           <aside className="panel">
             <h2>Thành tựu gần đây</h2>
             {achievements?.length ? achievements.map((item) => (
-              <div className="profile-row" key={item.id}>
+              <Link className="admin-list-link" href={`/admin/game/achievement/${item.id}`} key={item.id}>
                 <span>{item.active ? "Đang dùng" : "Đang ẩn"} · {item.code}</span>
                 <strong>{item.name}</strong>
-              </div>
+              </Link>
             )) : <p className="panel-note">Chưa có thành tựu.</p>}
           </aside>
         </div>
