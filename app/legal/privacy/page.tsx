@@ -12,6 +12,8 @@ Thông tin thanh toán nhạy cảm của ví hoặc thẻ không được yêu 
 
 Dữ liệu tài khoản chỉ được sử dụng để vận hành Musical Survival, bảo vệ tài khoản, xử lý giao dịch, hỗ trợ người chơi và duy trì dữ liệu game liên quan đến tài khoản.
 
+Trong trang tài khoản, bạn có thể tải bản sao dữ liệu đang được liên kết với Player ID. Bạn cũng có thể yêu cầu xóa vĩnh viễn tài khoản; việc xóa sẽ loại bỏ tài khoản đăng nhập và các dữ liệu phụ thuộc được cấu hình xóa theo tài khoản, trong khi một số bản ghi hệ thống tối thiểu có thể được giữ ở dạng không còn liên kết trực tiếp để phục vụ tính toàn vẹn, bảo mật hoặc đối soát.
+
 Bạn nên bảo vệ quyền truy cập vào tài khoản Google và các phương thức xác minh đã liên kết. Khi các kênh hỗ trợ chính thức được công bố, yêu cầu liên quan đến dữ liệu tài khoản sẽ được tiếp nhận tại những kênh đó.
 
 Chính sách này có thể được cập nhật khi Musical Survival bổ sung dịch vụ mới. Phiên bản đang hiển thị trên trang chính thức là phiên bản được áp dụng.`}</div>
