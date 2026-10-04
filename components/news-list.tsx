@@ -33,7 +33,7 @@ export function NewsList() {
       .select("id,slug,title,summary,published_at")
       .eq("published", true)
       .order("published_at", { ascending: false })
-      .then((result) => {
+      .then((result: { data: unknown }) => {
         const data = result.data;
         if (!active) return;
         setPosts((data as NewsPost[] | null) ?? []);
