@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { requireAdmin } from "@/lib/auth";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
-import { createAnnouncement } from "./actions";
+import { createAnnouncement, toggleAnnouncement } from "./actions";
 
 export default async function AnnouncementsAdminPage({
   searchParams
@@ -29,7 +29,11 @@ export default async function AnnouncementsAdminPage({
       <section className="content-grid shell">
         <div className="panel">
           <h2>Tạo thông báo</h2>
-          {params.status === "saved" ? <div className="notice notice-success">Thông báo đã được lưu.</div> : null}
+          {["saved", "updated", "deleted"].includes(params.status || "") ? (
+            <div className="notice notice-success">
+              {params.status === "deleted" ? "Thông báo đã được xóa." : "Thông báo đã được lưu."}
+            </div>
+          ) : null}
           {params.status === "error" || params.status === "invalid" ? <div className="notice notice-error">Không thể lưu thông báo.</div> : null}
 
           <form action={createAnnouncement} className="form-grid" style={{ marginTop: 18 }}>
@@ -61,9 +65,21 @@ export default async function AnnouncementsAdminPage({
           <div className="panel">
             <h2>Thông báo gần đây</h2>
             {items?.length ? items.map((item) => (
-              <div className="profile-row" key={item.id}>
-                <span>{item.active ? "Đang hiển thị" : "Đã ẩn"}</span>
-                <strong>{item.title}</strong>
+              <div className="admin-content-row" key={item.id}>
+                <div>
+                  <span>{item.active ? "Đang hiển thị" : "Đã ẩn"} · {item.severity}</span>
+                  <strong>{item.title}</strong>
+                </div>
+                <div className="admin-row-actions">
+                  <Link className="text-link" href={`/admin/announcements/${item.id}`}>Sửa</Link>
+                  <form action={toggleAnnouncement}>
+                    <input type="hidden" name="id" value={item.id} />
+                    <input type="hidden" name="active" value={item.active ? "false" : "true"} />
+                    <button className="text-button" type="submit">
+                      {item.active ? "Ẩn" : "Hiện"}
+                    </button>
+                  </form>
+                </div>
               </div>
             )) : <p className="panel-note">Chưa có thông báo.</p>}
           </div>
