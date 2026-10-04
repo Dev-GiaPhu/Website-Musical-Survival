@@ -10,9 +10,11 @@ export default function TermsPage() {
 
 Không sử dụng tài khoản, website hoặc dịch vụ của Musical Survival để gian lận giao dịch, can thiệp trái phép vào dữ liệu người chơi, khai thác lỗi nhằm tạo lợi thế không hợp lệ hoặc gây ảnh hưởng đến người chơi khác.
 
-Số dư, vật phẩm, thành tựu và dữ liệu gắn với tài khoản chỉ được công nhận khi được hệ thống Musical Survival xác nhận. Giao dịch chưa được xác nhận hoàn tất sẽ không được xem là đã cấp quyền lợi trong game.
+Số dư, vật phẩm, thành tựu và dữ liệu gắn với tài khoản chỉ được công nhận khi được hệ thống Musical Survival xác nhận. Giá và quyền lợi của giao dịch được lấy từ dữ liệu phía máy chủ; dữ liệu do client tự thay đổi không có giá trị. Giao dịch chưa được xác nhận hoàn tất sẽ không được xem là đã cấp quyền lợi trong game.
 
 Các nội dung, gói nạp, vật phẩm hoặc dịch vụ chưa được công bố trên trang chính thức không được xem là thông tin phát hành của Musical Survival.
+
+Người chơi có thể xóa vĩnh viễn tài khoản từ trang hồ sơ sau khi hoàn thành các bước xác nhận. Hành động xóa không thể được hoàn tác và có thể làm mất quyền truy cập vào tiến trình, vật phẩm và dữ liệu gắn với Player ID đó.
 
 Musical Survival có thể hạn chế hoặc đình chỉ tài khoản có dấu hiệu gian lận, lạm dụng thanh toán hoặc vi phạm nghiêm trọng các nguyên tắc sử dụng. Các trường hợp cần xem xét sẽ được xử lý qua kênh hỗ trợ chính thức khi kênh này được công bố.
 
