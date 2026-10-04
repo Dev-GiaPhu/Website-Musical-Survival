@@ -7,13 +7,11 @@ Code changes should not be required when these steps are performed.
 
 The project already has migrations 001-003 applied in production.
 
-Apply, in order:
+Because production already has migrations 001-003, run this single bundled file in Supabase SQL Editor:
 
-1. `supabase/migrations/202610030004_accounts_rewards_events.sql`
-2. `supabase/migrations/202610040005_admin_management.sql`
-3. `supabase/migrations/202610040006_account_deletion_retention.sql`
+`supabase/production-finalize.sql`
 
-Do not skip any migration. Migration 006 is required for permanent account deletion while retaining non-linked financial/audit records needed for integrity and reconciliation.
+The bundle contains migrations 004, 005 and 006 in the correct order. Do not run only part of the file.
 
 ## 2. Supabase Auth URLs
 
