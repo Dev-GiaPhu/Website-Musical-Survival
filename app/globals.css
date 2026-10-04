@@ -613,3 +613,52 @@ button { cursor: pointer; }
     flex-direction: column;
   }
 }
+
+
+/* Player account data */
+.account-stats-grid {
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:14px;
+}
+.account-stat-pair {
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:10px;
+  margin:18px 0;
+}
+.account-stat-pair > div {
+  display:grid;
+  gap:5px;
+  padding:14px;
+  border:1px solid var(--line);
+  border-radius:13px;
+  background:rgba(255,255,255,.025);
+}
+.account-stat-pair span,
+.account-collection-item span,
+.account-collection-item small {
+  color:var(--muted);
+  font-size:11px;
+}
+.account-stat-pair strong {
+  font:700 24px/1 "Space Grotesk",sans-serif;
+}
+.account-collection-grid {
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:10px;
+}
+.account-collection-item {
+  display:grid;
+  gap:6px;
+  padding:14px;
+  border:1px solid var(--line);
+  border-radius:13px;
+  background:rgba(255,255,255,.02);
+}
+.account-collection-item strong { font-size:13px; }
+@media (max-width:680px) {
+  .account-stats-grid,
+  .account-collection-grid { grid-template-columns:1fr; }
+}
