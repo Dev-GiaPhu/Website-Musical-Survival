@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { requireAdmin } from "@/lib/auth";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
-import { awardEventEntry, markEntryNotSelected, updateEvent } from "../actions";
+import { awardEventEntry, deleteEvent, markEntryNotSelected, updateEvent } from "../actions";
 
 const messages: Record<string, { kind: "success" | "error"; text: string }> = {
   created: { kind: "success", text: "Sự kiện đã được tạo." },
@@ -12,7 +12,8 @@ const messages: Record<string, { kind: "success" | "error"; text: string }> = {
   invalid: { kind: "error", text: "Dữ liệu không hợp lệ." },
   error: { kind: "error", text: "Không thể cập nhật sự kiện." },
   "award-error": { kind: "error", text: "Không thể trao thưởng. Bài này có thể đã được trao thưởng trước đó." },
-  "review-error": { kind: "error", text: "Không thể cập nhật bài dự thi." }
+  "review-error": { kind: "error", text: "Không thể cập nhật bài dự thi." },
+  "delete-error": { kind: "error", text: "Không thể xóa sự kiện." }
 };
 
 function toVietnamLocalInput(value: string) {
@@ -194,6 +195,17 @@ export default async function AdminEventDetailPage({
               })}
             </div>
           ) : <p className="panel-note">Chưa có bài dự thi.</p>}
+        </div>
+
+        <div className="panel danger-panel">
+          <h2>Xóa sự kiện</h2>
+          <p className="panel-note">
+            Xóa sự kiện cũng xóa các bài dự thi của sự kiện. Phần thưởng đã ghi vào ví và ledger không bị hoàn tác.
+          </p>
+          <form action={deleteEvent}>
+            <input type="hidden" name="eventId" value={event.id} />
+            <button className="button button-danger" type="submit">Xóa sự kiện</button>
+          </form>
         </div>
 
         <Link className="text-link admin-back" href="/admin/events">← Tất cả sự kiện</Link>
