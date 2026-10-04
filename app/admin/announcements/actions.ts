@@ -15,6 +15,14 @@ const schema = z.object({
 
 const idSchema = z.string().uuid();
 
+function parseOptionalVietnamDateTime(value: FormDataEntryValue | null) {
+  const raw = String(value || "").trim();
+  if (!raw) return null;
+  if (!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(raw)) return undefined;
+  const date = new Date(`${raw}:00+07:00`);
+  return Number.isNaN(date.getTime()) ? undefined : date.toISOString();
+}
+
 export async function createAnnouncement(formData: FormData) {
   const user = await requireAdmin();
   const parsed = schema.safeParse({
@@ -24,11 +32,23 @@ export async function createAnnouncement(formData: FormData) {
     active: formData.get("active") === "on"
   });
 
-  if (!parsed.success) redirect("/admin/announcements?status=invalid");
+  const startsAt = parseOptionalVietnamDateTime(formData.get("startsAt"));
+  const endsAt = parseOptionalVietnamDateTime(formData.get("endsAt"));
+
+  if (
+    !parsed.success ||
+    startsAt === undefined ||
+    endsAt === undefined ||
+    (startsAt && endsAt && new Date(endsAt).getTime() <= new Date(startsAt).getTime())
+  ) {
+    redirect("/admin/announcements?status=invalid");
+  }
 
   const supabase = await createSupabaseServerClient();
   const { error } = await supabase.from("announcements").insert({
     ...parsed.data,
+    starts_at: startsAt,
+    ends_at: endsAt,
     author_id: user.id
   });
 
@@ -50,14 +70,27 @@ export async function updateAnnouncement(formData: FormData) {
     active: formData.get("active") === "on"
   });
 
-  if (!id.success || !parsed.success) {
+  const startsAt = parseOptionalVietnamDateTime(formData.get("startsAt"));
+  const endsAt = parseOptionalVietnamDateTime(formData.get("endsAt"));
+
+  if (
+    !id.success ||
+    !parsed.success ||
+    startsAt === undefined ||
+    endsAt === undefined ||
+    (startsAt && endsAt && new Date(endsAt).getTime() <= new Date(startsAt).getTime())
+  ) {
     redirect("/admin/announcements?status=invalid");
   }
 
   const supabase = await createSupabaseServerClient();
   const { error } = await supabase
     .from("announcements")
-    .update(parsed.data)
+    .update({
+      ...parsed.data,
+      starts_at: startsAt,
+      ends_at: endsAt
+    })
     .eq("id", id.data);
 
   if (error) redirect(`/admin/announcements/${id.data}?status=error`);
