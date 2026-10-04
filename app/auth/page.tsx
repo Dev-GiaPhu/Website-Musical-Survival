@@ -26,7 +26,8 @@ const errorMessages: Record<string, string> = {
 const statusMessages: Record<string, string> = {
   "verification-sent": "Tài khoản đã được tạo. Hãy mở email và xác minh địa chỉ email để kích hoạt tài khoản.",
   "verification-resent": "Email xác minh mới đã được gửi.",
-  "reset-sent": "Nếu email này thuộc một tài khoản Musical Survival, bạn sẽ nhận được hướng dẫn đặt lại mật khẩu."
+  "reset-sent": "Nếu email này thuộc một tài khoản Musical Survival, bạn sẽ nhận được hướng dẫn đặt lại mật khẩu.",
+  "account-deleted": "Tài khoản Musical Survival đã được xóa vĩnh viễn."
 };
 
 export default async function AuthPage({
