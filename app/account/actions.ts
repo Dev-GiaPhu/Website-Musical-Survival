@@ -12,6 +12,15 @@ function accountRedirect(code: string): never {
   redirect(`/account?status=${encodeURIComponent(code)}`);
 }
 
+const accountPasswordSchema = z
+  .object({
+    password: z.string().min(8).max(72).regex(/[a-z]/).regex(/[A-Z]/).regex(/[0-9]/),
+    confirmPassword: z.string()
+  })
+  .refine((value) => value.password === value.confirmPassword, {
+    path: ["confirmPassword"]
+  });
+
 export async function updateDisplayName(formData: FormData) {
   const parsed = profileSchema.safeParse({
     displayName: formData.get("displayName")
@@ -210,4 +219,39 @@ export async function deleteOwnAccount(formData: FormData) {
 
   await supabase.auth.signOut({ scope: "global" });
   redirect("/auth?status=account-deleted");
+}
+
+
+export async function changePassword(formData: FormData) {
+  const parsed = accountPasswordSchema.safeParse({
+    password: formData.get("password"),
+    confirmPassword: formData.get("confirmPassword")
+  });
+
+  if (!parsed.success) accountRedirect("password-invalid");
+
+  const supabase = await createSupabaseServerClient();
+  const { data: authData } = await supabase.auth.getUser();
+  if (!authData.user) redirect("/auth?mode=login");
+
+  const { error } = await supabase.auth.updateUser({
+    password: parsed.data.password
+  });
+
+  if (error) {
+    const message = error.message.toLowerCase();
+    if (message.includes("reauth") || message.includes("nonce")) {
+      accountRedirect("password-reauth");
+    }
+    accountRedirect("password-error");
+  }
+
+  await recordSecurityEvent({
+    userId: authData.user.id,
+    eventType: "account.password_changed",
+    severity: "warning"
+  });
+
+  await supabase.auth.signOut({ scope: "others" });
+  accountRedirect("password-updated");
 }
