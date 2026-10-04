@@ -12,33 +12,50 @@ export function AccountNav() {
     const supabase = createSupabaseBrowserClient();
     let active = true;
 
-    async function refresh() {
-      const { data } = await supabase.auth.getUser();
-      if (!active) return;
-
-      const user = data.user;
-      setSignedIn(Boolean(user));
-
-      if (!user) {
-        setIsAdmin(false);
-        return;
-      }
-
+    async function loadRole(userId: string) {
       const { data: profile } = await supabase
         .from("profiles")
         .select("role")
-        .eq("id", user.id)
+        .eq("id", userId)
         .maybeSingle();
 
       if (!active) return;
       setIsAdmin(profile?.role === "admin" || profile?.role === "super_admin");
     }
 
-    void refresh();
+    async function initialize() {
+      const { data } = await supabase.auth.getUser();
+      if (!active) return;
 
-    const { data: subscription } = supabase.auth.onAuthStateChange(() => {
-      void refresh();
-    });
+      const user = data.user;
+      setSignedIn(Boolean(user));
+
+      if (user) {
+        await loadRole(user.id);
+      } else {
+        setIsAdmin(false);
+      }
+    }
+
+    void initialize();
+
+    const { data: subscription } = supabase.auth.onAuthStateChange(
+      (_event, session) => {
+        if (!active) return;
+
+        const user = session?.user ?? null;
+        setSignedIn(Boolean(user));
+
+        if (!user) {
+          setIsAdmin(false);
+          return;
+        }
+
+        queueMicrotask(() => {
+          if (active) void loadRole(user.id);
+        });
+      }
+    );
 
     return () => {
       active = false;
