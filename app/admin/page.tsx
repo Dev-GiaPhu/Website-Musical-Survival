@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { requireAdmin } from "@/lib/auth";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
-import { publishNews } from "./actions";
+import { publishNews, toggleNewsVisibility } from "./actions";
 
 export default async function AdminPage({
   searchParams
@@ -52,8 +52,10 @@ export default async function AdminPage({
       <section className="content-grid shell">
         <div className="panel">
           <h2>Đăng tin mới</h2>
-          {params.status === "published" ? (
-            <div className="notice notice-success">Tin đã được lưu.</div>
+          {["published", "updated", "deleted"].includes(params.status || "") ? (
+            <div className="notice notice-success">
+              {params.status === "deleted" ? "Bài viết đã được xóa." : "Nội dung đã được lưu."}
+            </div>
           ) : null}
           {params.status === "error" || params.status === "invalid" ? (
             <div className="notice notice-error">Không thể lưu tin.</div>
@@ -83,9 +85,21 @@ export default async function AdminPage({
           <h2>Bài gần đây</h2>
           <div className="stack">
             {posts?.length ? posts.map((post) => (
-              <div key={post.id} className="profile-row">
-                <span>{post.published ? "Đã công bố" : "Bản nháp"}</span>
-                <strong>{post.title}</strong>
+              <div key={post.id} className="admin-content-row">
+                <div>
+                  <span>{post.published ? "Đã công bố" : "Bản nháp"}</span>
+                  <strong>{post.title}</strong>
+                </div>
+                <div className="admin-row-actions">
+                  <Link className="text-link" href={`/admin/news/${post.id}`}>Sửa</Link>
+                  <form action={toggleNewsVisibility}>
+                    <input type="hidden" name="id" value={post.id} />
+                    <input type="hidden" name="published" value={post.published ? "false" : "true"} />
+                    <button className="text-button" type="submit">
+                      {post.published ? "Ẩn" : "Công bố"}
+                    </button>
+                  </form>
+                </div>
               </div>
             )) : <p className="panel-note">Chưa có nội dung.</p>}
           </div>
