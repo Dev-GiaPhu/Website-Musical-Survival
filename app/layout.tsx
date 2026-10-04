@@ -1,20 +1,45 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import Link from "next/link";
 import "./globals.css";
 import { siteConfig } from "@/lib/site";
 import { AccountNav } from "@/components/account-nav";
 
 export const metadata: Metadata = {
+  metadataBase: new URL(siteConfig.url),
   title: {
     default: siteConfig.title,
     template: "%s | Musical Survival Official"
   },
   description: siteConfig.description,
   applicationName: siteConfig.title,
+  alternates: {
+    canonical: "/"
+  },
+  manifest: "/manifest.webmanifest",
+  openGraph: {
+    type: "website",
+    locale: "vi_VN",
+    url: "/",
+    siteName: siteConfig.title,
+    title: siteConfig.title,
+    description: siteConfig.description
+  },
+  twitter: {
+    card: "summary",
+    title: siteConfig.title,
+    description: siteConfig.description
+  },
   robots: {
     index: true,
     follow: true
   }
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  themeColor: "#08090d",
+  colorScheme: "dark"
 };
 
 export default function RootLayout({
