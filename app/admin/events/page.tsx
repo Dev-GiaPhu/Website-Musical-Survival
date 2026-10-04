@@ -5,7 +5,8 @@ import { createEvent } from "./actions";
 
 const messages: Record<string, { kind: "success" | "error"; text: string }> = {
   invalid: { kind: "error", text: "Thông tin sự kiện chưa hợp lệ." },
-  error: { kind: "error", text: "Không thể lưu sự kiện." }
+  error: { kind: "error", text: "Không thể lưu sự kiện." },
+  deleted: { kind: "success", text: "Sự kiện đã được xóa." }
 };
 
 function formatDate(value: string) {
