@@ -1,7 +1,9 @@
+"use client";
+
 import Link from "next/link";
-import { notFound } from "next/navigation";
-import { getCurrentUser } from "@/lib/auth";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { useParams, useSearchParams } from "next/navigation";
+import { useEffect, useMemo, useState } from "react";
+import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 import { submitEventEntry } from "../actions";
 
 const messages: Record<string, { kind: "success" | "error"; text: string }> = {
@@ -13,6 +15,28 @@ const messages: Record<string, { kind: "success" | "error"; text: string }> = {
   "submit-error": { kind: "error", text: "Không thể gửi bài dự thi. Vui lòng thử lại." }
 };
 
+type EventData = {
+  id: string;
+  slug: string;
+  title: string;
+  summary: string;
+  rules: string;
+  submission_prompt: string;
+  reward_description: string | null;
+  starts_at: string;
+  ends_at: string;
+  max_entries: number | null;
+};
+
+type EntryData = {
+  id: string;
+  submission: string;
+  status: "submitted" | "winner" | "not_selected";
+  reward_coins: number;
+  admin_note: string | null;
+  submitted_at: string;
+};
+
 function formatDate(value: string) {
   return new Intl.DateTimeFormat("vi-VN", {
     dateStyle: "full",
@@ -21,41 +45,97 @@ function formatDate(value: string) {
   }).format(new Date(value));
 }
 
-export default async function EventDetailPage({
-  params,
-  searchParams
-}: {
-  params: Promise<{ slug: string }>;
-  searchParams: Promise<{ status?: string }>;
-}) {
-  const { slug } = await params;
-  const query = await searchParams;
-  const user = await getCurrentUser();
-  const supabase = await createSupabaseServerClient();
+export default function EventDetailPage() {
+  const params = useParams<{ slug: string }>();
+  const searchParams = useSearchParams();
+  const slug = params.slug;
+  const [event, setEvent] = useState<EventData | null>(null);
+  const [entry, setEntry] = useState<EntryData | null>(null);
+  const [phase, setPhase] = useState<string>("loading");
+  const [signedIn, setSignedIn] = useState(false);
+  const [loaded, setLoaded] = useState(false);
 
-  const { data: event } = await supabase
-    .from("game_events")
-    .select("id,slug,title,summary,rules,submission_prompt,reward_description,starts_at,ends_at,max_entries")
-    .eq("slug", slug)
-    .eq("status", "published")
-    .maybeSingle();
+  const message = useMemo(() => {
+    const status = searchParams.get("status");
+    return status ? messages[status] : undefined;
+  }, [searchParams]);
 
-  if (!event) notFound();
+  useEffect(() => {
+    const supabase = createSupabaseBrowserClient();
+    let active = true;
 
-  const { data: entry } = user
-    ? await supabase
-        .from("game_event_entries")
-        .select("id,submission,status,reward_coins,admin_note,submitted_at")
-        .eq("event_id", event.id)
-        .eq("user_id", user.id)
-        .maybeSingle()
-    : { data: null };
+    async function load() {
+      const [{ data: authData }, { data: eventData }] = await Promise.all([
+        supabase.auth.getUser(),
+        supabase
+          .from("game_events")
+          .select("id,slug,title,summary,rules,submission_prompt,reward_description,starts_at,ends_at,max_entries")
+          .eq("slug", slug)
+          .eq("status", "published")
+          .maybeSingle()
+      ]);
 
-  const { data: phase } = await supabase.rpc("get_game_event_phase", {
-    target_event_id: event.id
-  });
+      if (!active) return;
+
+      const currentEvent = eventData as EventData | null;
+      setEvent(currentEvent);
+      setSignedIn(Boolean(authData.user));
+
+      if (!currentEvent) {
+        setLoaded(true);
+        return;
+      }
+
+      const phasePromise = supabase.rpc("get_game_event_phase", {
+        target_event_id: currentEvent.id
+      });
+
+      const entryPromise = authData.user
+        ? supabase
+            .from("game_event_entries")
+            .select("id,submission,status,reward_coins,admin_note,submitted_at")
+            .eq("event_id", currentEvent.id)
+            .eq("user_id", authData.user.id)
+            .maybeSingle()
+        : Promise.resolve({ data: null });
+
+      const [phaseResult, entryResult] = await Promise.all([phasePromise, entryPromise]);
+
+      if (!active) return;
+
+      setPhase(String(phaseResult.data || "unavailable"));
+      setEntry((entryResult.data as EntryData | null) ?? null);
+      setLoaded(true);
+    }
+
+    void load();
+
+    return () => {
+      active = false;
+    };
+  }, [slug]);
+
+  if (!loaded) {
+    return (
+      <article className="article event-detail">
+        <div className="news-meta">MUSICAL SURVIVAL EVENT</div>
+        <h1>Đang tải sự kiện...</h1>
+      </article>
+    );
+  }
+
+  if (!event) {
+    return (
+      <article className="article event-detail">
+        <div className="news-meta">MUSICAL SURVIVAL EVENT</div>
+        <h1>Không tìm thấy sự kiện</h1>
+        <p className="article-summary">Sự kiện không tồn tại hoặc chưa được công bố.</p>
+        <Link className="text-link" href="/events">← Tất cả sự kiện</Link>
+      </article>
+    );
+  }
+
   const isOpen = phase === "open";
-  const message = query.status ? messages[query.status] : undefined;
 
   return (
     <article className="article event-detail">
@@ -84,7 +164,11 @@ export default async function EventDetailPage({
           <div className="panel-title-row">
             <h2>Bài dự thi của bạn</h2>
             <span className={`badge ${entry.status === "winner" ? "badge-online" : ""}`}>
-              {entry.status === "winner" ? "Được chọn" : entry.status === "not_selected" ? "Đã xét" : "Đã gửi"}
+              {entry.status === "winner"
+                ? "Được chọn"
+                : entry.status === "not_selected"
+                  ? "Đã xét"
+                  : "Đã gửi"}
             </span>
           </div>
           <p className="entry-submission">{entry.submission}</p>
@@ -95,7 +179,7 @@ export default async function EventDetailPage({
           ) : null}
           {entry.admin_note ? <p className="panel-note">{entry.admin_note}</p> : null}
         </section>
-      ) : user && isOpen ? (
+      ) : signedIn && isOpen ? (
         <section className="panel event-entry-panel">
           <h2>Tham gia mini-game</h2>
           <form action={submitEventEntry} className="form-grid">
@@ -108,7 +192,7 @@ export default async function EventDetailPage({
             <button className="button button-primary" type="submit">Gửi bài dự thi</button>
           </form>
         </section>
-      ) : !user ? (
+      ) : !signedIn ? (
         <section className="panel event-entry-panel">
           <h2>Đăng nhập để tham gia</h2>
           <p className="panel-note">Sự kiện sử dụng chính tài khoản Musical Survival của bạn.</p>
