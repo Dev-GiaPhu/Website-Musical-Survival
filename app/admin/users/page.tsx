@@ -11,6 +11,18 @@ function formatDate(value?: string | null) {
   }).format(new Date(value));
 }
 
+type AdminPlayerRow = {
+  id: string;
+  username: string | null;
+  display_name: string | null;
+  role: string;
+  status: string;
+  created_at: string;
+  last_seen_at: string | null;
+  is_online: boolean;
+  total_count: number;
+};
+
 export default async function AdminUsersPage({
   searchParams
 }: {
@@ -33,7 +45,8 @@ export default async function AdminUsersPage({
     page_offset: (page - 1) * pageSize
   });
 
-  const total = Number(users?.[0]?.total_count || 0);
+  const typedUsers = (users as AdminPlayerRow[] | null) ?? [];
+  const total = Number(typedUsers[0]?.total_count || 0);
   const totalPages = Math.max(1, Math.ceil(total / pageSize));
 
   function pageHref(target: number) {
@@ -89,7 +102,7 @@ export default async function AdminUsersPage({
             <div className="data-row data-head">
               <span>Người chơi</span><span>Trạng thái</span><span>Quyền</span><span>Hoạt động gần nhất</span>
             </div>
-            {users?.length ? users.map((user) => (
+            {typedUsers.length ? typedUsers.map((user) => (
               <div className="data-row" key={user.id}>
                 <span>
                   <Link href={`/admin/users/${user.id}`}>
