@@ -38,6 +38,7 @@ supabase/migrations/202610020002_admin_operations.sql
 supabase/migrations/202610020003_game_state_api.sql
 supabase/migrations/202610030004_accounts_rewards_events.sql
 supabase/migrations/202610040005_admin_management.sql
+supabase/migrations/202610040006_account_deletion_retention.sql
 ```
 
 You can apply it with the Supabase CLI or SQL editor.
@@ -231,5 +232,6 @@ Before deploying the current `main` branch to production, apply migrations in th
 3. `202610020003_game_state_api.sql`
 4. `202610030004_accounts_rewards_events.sql`
 5. `202610040005_admin_management.sql`
+6. `202610040006_account_deletion_retention.sql`
 
 The last two migrations power unified account onboarding, admin rewards, events/mini-games, player role management, search and pagination.
