@@ -4,6 +4,22 @@ import { requireAdmin } from "@/lib/auth";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { deleteAnnouncement, updateAnnouncement } from "../actions";
 
+function toVietnamLocalInput(value?: string | null) {
+  if (!value) return "";
+  const date = new Date(value);
+  const parts = new Intl.DateTimeFormat("sv-SE", {
+    timeZone: "Asia/Ho_Chi_Minh",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false
+  }).formatToParts(date);
+  const get = (type: string) => parts.find((part) => part.type === type)?.value || "";
+  return `${get("year")}-${get("month")}-${get("day")}T${get("hour")}:${get("minute")}`;
+}
+
 const messages: Record<string, { kind: "success" | "error"; text: string }> = {
   updated: { kind: "success", text: "Thông báo đã được cập nhật." },
   error: { kind: "error", text: "Không thể cập nhật thông báo." },
@@ -61,9 +77,19 @@ export default async function AnnouncementEditPage({
                 <option value="important">Quan trọng</option>
               </select>
             </div>
+            <div className="form-two">
+              <div className="field">
+                <label htmlFor="startsAt">Bắt đầu — giờ Việt Nam</label>
+                <input id="startsAt" name="startsAt" type="datetime-local" defaultValue={toVietnamLocalInput(item.starts_at)} />
+              </div>
+              <div className="field">
+                <label htmlFor="endsAt">Kết thúc — giờ Việt Nam</label>
+                <input id="endsAt" name="endsAt" type="datetime-local" defaultValue={toVietnamLocalInput(item.ends_at)} />
+              </div>
+            </div>
             <label className="check-row">
               <input name="active" type="checkbox" defaultChecked={item.active} />
-              Hiển thị thông báo
+              Bật thông báo
             </label>
             <button className="button button-primary" type="submit">Lưu thay đổi</button>
           </form>
@@ -79,6 +105,14 @@ export default async function AnnouncementEditPage({
             <div className="profile-row">
               <span>Mức độ</span>
               <strong>{item.severity}</strong>
+            </div>
+            <div className="profile-row">
+              <span>Bắt đầu</span>
+              <strong>{item.starts_at ? toVietnamLocalInput(item.starts_at).replace("T", " ") : "Ngay khi bật"}</strong>
+            </div>
+            <div className="profile-row">
+              <span>Kết thúc</span>
+              <strong>{item.ends_at ? toVietnamLocalInput(item.ends_at).replace("T", " ") : "Không giới hạn"}</strong>
             </div>
           </div>
 
