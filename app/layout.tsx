@@ -2,8 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import "./globals.css";
 import { siteConfig } from "@/lib/site";
-import { getCurrentUser } from "@/lib/auth";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { AccountNav } from "@/components/account-nav";
 
 export const metadata: Metadata = {
   title: {
@@ -18,23 +17,9 @@ export const metadata: Metadata = {
   }
 };
 
-export default async function RootLayout({
+export default function RootLayout({
   children
 }: Readonly<{ children: React.ReactNode }>) {
-  const user = await getCurrentUser();
-  let isAdmin = false;
-
-  if (user) {
-    const supabase = await createSupabaseServerClient();
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("role")
-      .eq("id", user.id)
-      .maybeSingle();
-
-    isAdmin = profile?.role === "admin" || profile?.role === "super_admin";
-  }
-
   return (
     <html lang="vi">
       <body>
@@ -54,12 +39,7 @@ export default async function RootLayout({
               <Link href="/news">Tin tức</Link>
               <Link href="/events">Sự kiện</Link>
               <Link href="/top-up">Nạp tiền</Link>
-              {isAdmin ? <Link href="/admin">Quản trị</Link> : null}
-              {user ? (
-                <Link className="nav-account" href="/account">Tài khoản</Link>
-              ) : (
-                <Link className="nav-account" href="/auth?mode=login">Đăng nhập / Đăng ký</Link>
-              )}
+              <AccountNav />
             </nav>
           </div>
         </header>
