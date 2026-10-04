@@ -8,11 +8,8 @@
     "directory": ".open-next/assets",
     "binding": "ASSETS"
   },
-  "secrets": {
-    "required": [
-      "NEXT_PUBLIC_SUPABASE_URL",
-      "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY"
-    ]
+  "vars": {
+    "NEXT_PUBLIC_SITE_URL": "https://musical-survival-official.robloxphu113.workers.dev"
   },
   "observability": {
     "enabled": true
