@@ -13,7 +13,8 @@ import {
   requestPhoneLink,
   verifyPhoneLink,
   unlinkGoogleIdentity,
-  deleteOwnAccount
+  deleteOwnAccount,
+  changePassword
 } from "@/app/account/actions";
 
 type Profile = {
@@ -34,7 +35,10 @@ const statusMessages: Record<string, { kind: "success" | "error"; text: string }
   "email-confirmed-one": { kind: "success", text: "Một bước xác nhận đã hoàn tất. Nếu email mới vẫn đang chờ, hãy mở email xác nhận còn lại." },
   "email-changed": { kind: "success", text: "Email đăng nhập đã được thay đổi thành công." },
   "email-same": { kind: "error", text: "Email mới đang giống email hiện tại." },
-  "password-updated": { kind: "success", text: "Mật khẩu mới đã được lưu." },
+  "password-updated": { kind: "success", text: "Mật khẩu mới đã được lưu và các phiên đăng nhập khác đã bị đăng xuất." },
+  "password-invalid": { kind: "error", text: "Mật khẩu mới cần ít nhất 8 ký tự, có chữ hoa, chữ thường và số; hai ô phải khớp nhau." },
+  "password-reauth": { kind: "error", text: "Phiên hiện tại cần xác minh lại trước khi đổi mật khẩu. Hãy dùng luồng khôi phục mật khẩu qua email." },
+  "password-error": { kind: "error", text: "Không thể đổi mật khẩu vào lúc này." },
   "phone-sent": { kind: "success", text: "Mã xác minh đã được gửi đến số điện thoại." },
   "phone-verified": { kind: "success", text: "Số điện thoại đã được liên kết." },
   "google-linked": { kind: "success", text: "Tài khoản Google mới đã được liên kết." },
@@ -270,9 +274,21 @@ export function AccountPortal() {
 
           <div className="panel">
             <h2>Bảo mật tài khoản</h2>
-            <p className="panel-note">Có thể kết thúc phiên hiện tại, đăng xuất khỏi mọi thiết bị hoặc yêu cầu đổi mật khẩu.</p>
-            <div className="stack" style={{ marginTop: 16 }}>
-              <Link className="button button-ghost full" href="/auth?mode=forgot">Đổi / khôi phục mật khẩu</Link>
+            <p className="panel-note">Đổi mật khẩu trực tiếp, khôi phục qua email hoặc kết thúc các phiên đăng nhập.</p>
+            <form action={changePassword} className="form-grid" style={{ marginTop: 16 }}>
+              <div className="field">
+                <label htmlFor="newPassword">Mật khẩu mới</label>
+                <input id="newPassword" name="password" type="password" minLength={8} maxLength={72} autoComplete="new-password" required />
+              </div>
+              <div className="field">
+                <label htmlFor="confirmNewPassword">Nhập lại mật khẩu mới</label>
+                <input id="confirmNewPassword" name="confirmPassword" type="password" minLength={8} maxLength={72} autoComplete="new-password" required />
+              </div>
+              <button className="button button-primary full" type="submit">Đổi mật khẩu</button>
+            </form>
+            <div className="panel-divider" />
+            <div className="stack">
+              <Link className="button button-ghost full" href="/auth?mode=forgot">Khôi phục mật khẩu qua email</Link>
               <form action="/auth/signout" method="post"><button className="button button-ghost full" type="submit">Đăng xuất thiết bị này</button></form>
               <form action="/auth/signout-all" method="post"><button className="button button-ghost full" type="submit">Đăng xuất tất cả thiết bị</button></form>
             </div>
