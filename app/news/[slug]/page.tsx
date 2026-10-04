@@ -36,7 +36,8 @@ export default function NewsArticlePage() {
       .eq("slug", slug)
       .eq("published", true)
       .maybeSingle()
-      .then(({ data }) => {
+      .then((result) => {
+        const data = result.data;
         if (!active) return;
         setPost(data as Post | null);
         setLoaded(true);
