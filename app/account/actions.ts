@@ -3,6 +3,7 @@
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { usernameSchema, profileSchema } from "@/lib/validation";
 import { getRequestOrigin } from "@/lib/site-url";
 
@@ -123,4 +124,60 @@ export async function unlinkGoogleIdentity(formData: FormData) {
 
   revalidatePath("/account");
   accountRedirect("google-unlinked");
+}
+
+
+export async function deleteOwnAccount(formData: FormData) {
+  const supabase = await createSupabaseServerClient();
+  const { data: authData, error: authError } = await supabase.auth.getUser();
+  const user = authData.user;
+
+  if (authError || !user) {
+    redirect("/auth?mode=login");
+  }
+
+  const username = String(formData.get("username") || "").trim();
+  const email = String(formData.get("email") || "").trim().toLowerCase();
+  const confirmation = formData.get("confirmation") === "on";
+
+  if (!confirmation || !username || !email) {
+    accountRedirect("delete-invalid");
+  }
+
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("username")
+    .eq("id", user.id)
+    .maybeSingle();
+
+  if (
+    !profile?.username ||
+    profile.username.toLowerCase() !== username.toLowerCase() ||
+    !user.email ||
+    user.email.toLowerCase() !== email
+  ) {
+    accountRedirect("delete-mismatch");
+  }
+
+  const admin = createSupabaseAdminClient();
+
+  await admin.from("audit_logs").insert({
+    actor_user_id: user.id,
+    target_user_id: user.id,
+    action: "account.self_delete_requested",
+    entity_type: "profile",
+    entity_id: user.id,
+    details: {
+      username: profile.username
+    }
+  });
+
+  const { error } = await admin.auth.admin.deleteUser(user.id);
+
+  if (error) {
+    accountRedirect("delete-error");
+  }
+
+  await supabase.auth.signOut({ scope: "global" });
+  redirect("/auth?status=account-deleted");
 }
