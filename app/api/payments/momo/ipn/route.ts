@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { getMomoConfig, verifyMomoCallback } from "@/lib/momo";
+import { recordSecurityEvent } from "@/lib/security-events";
 
 export async function POST(request: Request) {
   const config = getMomoConfig();
@@ -8,10 +9,23 @@ export async function POST(request: Request) {
 
   const body = await request.json().catch(() => null) as Record<string, unknown> | null;
   if (!body || !verifyMomoCallback(body, config)) {
+    await recordSecurityEvent({
+      eventType: "payment.momo_invalid_signature",
+      severity: "critical",
+      details: {
+        orderId: body ? String(body.orderId ?? "") : null,
+        partnerCode: body ? String(body.partnerCode ?? "") : null
+      }
+    });
     return NextResponse.json({ resultCode: 97, message: "Invalid signature" }, { status: 401 });
   }
 
   if (String(body.partnerCode ?? "") !== config.partnerCode) {
+    await recordSecurityEvent({
+      eventType: "payment.momo_invalid_partner",
+      severity: "critical",
+      details: { orderId: String(body.orderId ?? "") }
+    });
     return NextResponse.json({ resultCode: 97, message: "Invalid partner" }, { status: 400 });
   }
 
