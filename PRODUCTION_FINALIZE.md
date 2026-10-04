@@ -11,8 +11,9 @@ Apply, in order:
 
 1. `supabase/migrations/202610030004_accounts_rewards_events.sql`
 2. `supabase/migrations/202610040005_admin_management.sql`
+3. `supabase/migrations/202610040006_account_deletion_retention.sql`
 
-Do not skip either migration.
+Do not skip any migration. Migration 006 is required for permanent account deletion while retaining non-linked financial/audit records needed for integrity and reconciliation.
 
 ## 2. Supabase Auth URLs
 
