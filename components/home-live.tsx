@@ -172,7 +172,7 @@ export function HomeLive() {
               <span>MS</span>
               <small>OFFICIAL</small>
             </div>
-            <div className="hero-stage-label hero-stage-label-a">SURVIVE THE SOUND</div>
+            <div className="hero-stage-label hero-stage-label-a">OFFICIAL GAME PORTAL</div>
             <div className="hero-stage-label hero-stage-label-b">MUSICAL / SURVIVAL</div>
           </div>
           <div className="hero-ghost-word">MS</div>
