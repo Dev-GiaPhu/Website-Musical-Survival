@@ -3,6 +3,22 @@
 -- Run this entire file once in Supabase SQL Editor before deploying the current main branch.
 -- It contains migrations 004, 005 and 006 in order.
 
+-- Preflight: this file requires migrations 001-003.
+do $
+begin
+  if to_regclass('public.profiles') is null
+     or to_regclass('public.wallets') is null
+     or to_regclass('public.player_game_state') is null
+     or to_regclass('public.news_posts') is null then
+    raise exception using
+      errcode = 'P0001',
+      message = 'MUSICAL_SURVIVAL_CORE_SCHEMA_MISSING',
+      detail = 'Core tables from migrations 001-003 are missing.',
+      hint = 'Use supabase/bootstrap-production-full.sql for this Supabase project instead.';
+  end if;
+end;
+$;
+
 -- ============================================================================
 -- supabase/migrations/202610030004_accounts_rewards_events.sql
 -- ============================================================================
