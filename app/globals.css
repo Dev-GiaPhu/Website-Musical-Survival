@@ -1591,3 +1591,17 @@ body::before {
   .mobile-nav a { font-size:8px; }
   .footer-brand { align-items:flex-start; }
 }
+
+
+/* Global keyboard focus */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: 2px solid var(--accent-2);
+  outline-offset: 3px;
+}
+.skip-focus-anchor:focus-visible {
+  outline-offset: 6px;
+}
