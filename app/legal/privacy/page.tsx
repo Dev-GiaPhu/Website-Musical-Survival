@@ -1,3 +1,14 @@
+import type { Metadata } from "next";
+export const metadata: Metadata = {
+  title: "Chính sách quyền riêng tư",
+  description: "Chính sách quyền riêng tư của Musical Survival.",
+  alternates: { canonical: "/legal/privacy" },
+  openGraph: {
+    title: "Chính sách quyền riêng tư | Musical Survival Official",
+    description: "Chính sách quyền riêng tư của Musical Survival.",
+    url: "/legal/privacy"
+  }
+};
 export default function PrivacyPage() {
   return (
     <article className="article">
