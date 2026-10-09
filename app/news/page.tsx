@@ -1,5 +1,16 @@
+import type { Metadata } from "next";
 import { NewsList } from "@/components/news-list";
 
+export const metadata: Metadata = {
+  title: "Tin tức",
+  description: "Thông báo và cập nhật chính thức từ Musical Survival.",
+  alternates: { canonical: "/news" },
+  openGraph: {
+    title: "Tin tức | Musical Survival Official",
+    description: "Thông báo và cập nhật chính thức từ Musical Survival.",
+    url: "/news"
+  }
+};
 export default function NewsPage() {
   return (
     <>
