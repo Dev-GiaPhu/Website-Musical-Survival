@@ -1,3 +1,14 @@
+import type { Metadata } from "next";
+export const metadata: Metadata = {
+  title: "Điều khoản sử dụng",
+  description: "Điều khoản sử dụng Musical Survival.",
+  alternates: { canonical: "/legal/terms" },
+  openGraph: {
+    title: "Điều khoản sử dụng | Musical Survival Official",
+    description: "Điều khoản sử dụng Musical Survival.",
+    url: "/legal/terms"
+  }
+};
 export default function TermsPage() {
   return (
     <article className="article">
