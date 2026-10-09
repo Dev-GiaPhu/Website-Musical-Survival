@@ -1,5 +1,16 @@
+import type { Metadata } from "next";
 import { Storefront } from "@/components/storefront";
 
+export const metadata: Metadata = {
+  title: "Cửa hàng",
+  description: "Cửa hàng vật phẩm chính thức của Musical Survival.",
+  alternates: { canonical: "/store" },
+  openGraph: {
+    title: "Cửa hàng | Musical Survival Official",
+    description: "Cửa hàng vật phẩm chính thức của Musical Survival.",
+    url: "/store"
+  }
+};
 export default function StorePage() {
   return (
     <>
