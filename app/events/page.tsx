@@ -1,5 +1,16 @@
+import type { Metadata } from "next";
 import { EventsList } from "@/components/events-list";
 
+export const metadata: Metadata = {
+  title: "Sự kiện",
+  description: "Sự kiện và mini-game chính thức của Musical Survival.",
+  alternates: { canonical: "/events" },
+  openGraph: {
+    title: "Sự kiện | Musical Survival Official",
+    description: "Sự kiện và mini-game chính thức của Musical Survival.",
+    url: "/events"
+  }
+};
 export default function EventsPage() {
   return (
     <>
