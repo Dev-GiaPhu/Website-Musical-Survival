@@ -235,3 +235,13 @@ Before deploying the current `main` branch to production, apply migrations in th
 6. `202610040006_account_deletion_retention.sql`
 
 The last two migrations power unified account onboarding, admin rewards, events/mini-games, player role management, search and pagination.
+
+
+## Supabase setup paths
+
+Use the SQL file that matches the target project:
+
+- New/empty project or a project missing core tables such as `public.wallets`: run `supabase/bootstrap-production-full.sql`.
+- Project that already has migrations 001-003/core tables: run `supabase/production-finalize.sql`.
+
+Do not run the full bootstrap over a populated production database without reviewing the existing schema first.
