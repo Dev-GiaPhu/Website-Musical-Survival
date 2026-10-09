@@ -1,5 +1,16 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 
+export const metadata: Metadata = {
+  title: "Hỗ trợ",
+  description: "Trung tâm hỗ trợ tài khoản và dịch vụ Musical Survival.",
+  alternates: { canonical: "/support" },
+  openGraph: {
+    title: "Hỗ trợ | Musical Survival Official",
+    description: "Trung tâm hỗ trợ tài khoản và dịch vụ Musical Survival.",
+    url: "/support"
+  }
+};
 const supportEmail = process.env.NEXT_PUBLIC_SUPPORT_EMAIL?.trim();
 
 export default function SupportPage() {
