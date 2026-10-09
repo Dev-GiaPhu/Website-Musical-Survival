@@ -38,7 +38,7 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  themeColor: "#08090d",
+  themeColor: "#0b0b0d",
   colorScheme: "dark"
 };
 
@@ -59,6 +59,7 @@ export default function RootLayout({
                 <small>OFFICIAL</small>
               </span>
             </Link>
+            <div className="nav-divider" aria-hidden="true" />
             <nav className="nav-links" aria-label="Điều hướng chính">
               <Link href="/">Trang chủ</Link>
               <Link href="/news">Tin tức</Link>
@@ -69,12 +70,22 @@ export default function RootLayout({
             </nav>
           </div>
         </header>
+        <nav className="mobile-nav" aria-label="Điều hướng di động">
+          <Link href="/">Trang chủ</Link>
+          <Link href="/news">Tin tức</Link>
+          <Link href="/events">Sự kiện</Link>
+          <Link href="/store">Cửa hàng</Link>
+          <Link href="/account">Tài khoản</Link>
+        </nav>
         <main>{children}</main>
         <footer className="site-footer">
           <div className="shell footer-grid">
-            <div>
-              <strong>Musical Survival</strong>
-              <p>Kênh thông tin chính thức và cổng tài khoản dành cho người chơi.</p>
+            <div className="footer-brand">
+              <span className="footer-mark">MS</span>
+              <div>
+                <strong>MUSICAL SURVIVAL</strong>
+                <p>Kênh thông tin chính thức và cổng tài khoản dành cho người chơi.</p>
+              </div>
             </div>
             <div className="footer-links">
               <Link href="/news">Tin tức</Link>
