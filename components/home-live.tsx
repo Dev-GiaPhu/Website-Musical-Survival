@@ -126,13 +126,17 @@ export function HomeLive() {
 
       <section className="hero">
         <div className="shell hero-inner">
-          <div className="eyebrow">TRANG CHÍNH THỨC</div>
+          <div className="hero-overline">
+            <span className="hero-overline-dot" />
+            TRANG CHÍNH THỨC
+          </div>
           <h1>
-            MUSICAL
-            <span>SURVIVAL</span>
+            <span className="hero-title-main">MUSICAL</span>
+            <span className="hero-title-outline">SURVIVAL</span>
           </h1>
           <p className="hero-copy">
-            Tài khoản, tin tức, sự kiện và các thông tin chính thức của Musical Survival.
+            Cổng chính thức dành cho người chơi — tin tức, sự kiện, tài khoản,
+            cửa hàng và toàn bộ dịch vụ Musical Survival trong một nơi.
           </p>
           <div className="hero-actions">
             <Link className="button button-primary" href="/news">Xem tin mới</Link>
@@ -152,31 +156,37 @@ export function HomeLive() {
             )}
           </div>
           <div className="release-note">
-            <span className="pulse" />
+            <span className="release-index">01</span>
             <div>
-              <strong>Musical Survival đang trong quá trình phát triển</strong>
-              <p>Các thông tin chưa được xác nhận sẽ không được đăng tải.</p>
+              <strong>Thông tin chính thức, một nguồn duy nhất</strong>
+              <p>Tin tức và nội dung chưa được xác nhận sẽ không được đăng tải tại đây.</p>
             </div>
           </div>
         </div>
         <div className="hero-visual" aria-hidden="true">
-          <div className="vinyl">
-            <div className="vinyl-ring" />
-            <div className="vinyl-core">MS</div>
+          <div className="hero-stage">
+            <div className="hero-stage-grid" />
+            <div className="hero-stage-orbit hero-stage-orbit-one" />
+            <div className="hero-stage-orbit hero-stage-orbit-two" />
+            <div className="hero-stage-core">
+              <span>MS</span>
+              <small>OFFICIAL</small>
+            </div>
+            <div className="hero-stage-label hero-stage-label-a">SURVIVE THE SOUND</div>
+            <div className="hero-stage-label hero-stage-label-b">MUSICAL / SURVIVAL</div>
           </div>
-          <div className="equalizer">
-            {Array.from({ length: 18 }).map((_, i) => (
-              <span key={i} style={{ height: `${28 + ((i * 19) % 96)}px` }} />
-            ))}
-          </div>
+          <div className="hero-ghost-word">MS</div>
         </div>
       </section>
 
       <section className="section shell">
         <div className="section-heading">
-          <div>
-            <span className="kicker">BẢNG TIN</span>
-            <h2>Tin mới</h2>
+          <div className="section-title-block">
+            <span className="section-index">01</span>
+            <div>
+              <span className="kicker">BẢNG TIN CHÍNH THỨC</span>
+              <h2>Tin mới</h2>
+            </div>
           </div>
           <Link className="text-link" href="/news">Xem tất cả</Link>
         </div>
@@ -206,9 +216,12 @@ export function HomeLive() {
       {events.length > 0 ? (
         <section className="section shell">
           <div className="section-heading">
-            <div>
-              <span className="kicker">SỰ KIỆN & MINI-GAME</span>
-              <h2>Đang diễn ra</h2>
+            <div className="section-title-block">
+              <span className="section-index">02</span>
+              <div>
+                <span className="kicker">SỰ KIỆN & MINI-GAME</span>
+                <h2>Đang diễn ra</h2>
+              </div>
             </div>
             <Link className="text-link" href="/events">Xem sự kiện</Link>
           </div>
@@ -233,6 +246,7 @@ export function HomeLive() {
       <section className="section shell">
         <div className={`account-banner ${signedIn ? "account-banner-signed" : ""}`}>
           <div>
+            <span className="section-index section-index-inline">03</span>
             <span className="kicker">TÀI KHOẢN MUSICAL SURVIVAL</span>
             {signedIn ? (
               <>
