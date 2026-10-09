@@ -1,5 +1,16 @@
+import type { Metadata } from "next";
 import { ServiceStatus } from "@/components/service-status";
 
+export const metadata: Metadata = {
+  title: "Trạng thái dịch vụ",
+  description: "Trạng thái hệ thống và dịch vụ Musical Survival.",
+  alternates: { canonical: "/status" },
+  openGraph: {
+    title: "Trạng thái dịch vụ | Musical Survival Official",
+    description: "Trạng thái hệ thống và dịch vụ Musical Survival.",
+    url: "/status"
+  }
+};
 export default function StatusPage() {
   return (
     <>
