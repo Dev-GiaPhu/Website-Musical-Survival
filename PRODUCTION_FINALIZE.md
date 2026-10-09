@@ -7,11 +7,12 @@ Code changes should not be required when these steps are performed.
 
 The project already has migrations 001-003 applied in production.
 
-Because production already has migrations 001-003, run this single bundled file in Supabase SQL Editor:
+First check whether the target Supabase project has the core table `public.wallets`.
 
-`supabase/production-finalize.sql`
+- If `public.wallets` exists, run `supabase/production-finalize.sql`.
+- If `public.wallets` is missing, the project does not have the complete core schema. Use `supabase/bootstrap-production-full.sql` on a new/empty project, or inspect the existing partial schema before applying destructive changes.
 
-The bundle contains migrations 004, 005 and 006 in the correct order. Do not run only part of the file.
+`production-finalize.sql` now stops immediately with a clear preflight error when migrations 001-003 are missing.
 
 ## 2. Supabase Auth URLs
 
