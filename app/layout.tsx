@@ -12,9 +12,6 @@ export const metadata: Metadata = {
   },
   description: siteConfig.description,
   applicationName: siteConfig.title,
-  alternates: {
-    canonical: "/"
-  },
   manifest: "/manifest.webmanifest",
   openGraph: {
     type: "website",
